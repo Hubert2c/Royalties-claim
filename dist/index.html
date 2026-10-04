@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Royalty Claims Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="authView" class="auth-shell">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="brand-icon">R</div>
+          <div>
+            <p class="eyebrow">Claims portal</p>
+            <h1>Royalty Hub</h1>
+          </div>
+        </div>
+
+        <div class="auth-header">
+          <h2>Admin and reviewer access</h2>
+          <p>Sign in to manage claim reviews and operations</p>
+        </div>
+
+        <form id="adminLoginForm" class="auth-form">
+          <label>
+            Email
+            <input type="email" id="adminLoginEmail" placeholder="admin@royaltyhub.com" required />
+          </label>
+          <label>
+            Password
+            <input type="password" id="adminLoginPassword" placeholder="••••••••" required />
+          </label>
+          <button class="primary-btn full" type="submit">Admin login</button>
+        </form>
+
+      </div>
+    </div>
+
+    <div id="appView" class="hidden">
+      <div class="app-shell">
+        <aside class="sidebar">
+          <div class="brand-wrap">
+            <div class="brand-icon">R</div>
+            <div>
+              <p class="eyebrow">Claims</p>
+              <h1>Royalty Hub</h1>
+            </div>
+          </div>
+
+          <nav class="nav" aria-label="Primary navigation">
+            <button class="nav-item active" type="button" data-view="dashboard">Dashboard</button>
+            <button class="nav-item" type="button" data-view="claims">Claims</button>
+            <button class="nav-item" type="button" data-view="payments">Payments</button>
+            <button class="nav-item" type="button" data-view="reports">Reports</button>
+            <button class="nav-item" type="button" data-view="settings">Settings</button>
+          </nav>
+
+          <div class="profile-card">
+            <div class="avatar" id="userAvatar">A</div>
+            <div>
+              <strong id="userName">User</strong>
+              <small id="userRole">Role</small>
+            </div>
+          </div>
+        </aside>
+
+        <main class="main-panel">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Royalty claim dashboard</h2>
+            </div>
+
+            <div class="topbar-actions">
+              <button class="secondary-btn" id="exportBtn" type="button">Export</button>
+              <button class="secondary-btn" id="logoutBtn">Logout</button>
+              <button class="primary-btn" id="newClaimBtn">+ New claim</button>
+            </div>
+          </header>
+
+          <section id="dashboardView" class="view-section">
+            <section class="hero-strip">
+              <div class="hero-copy">
+                <p class="eyebrow">Platform health</p>
+                <h3>Everything is moving smoothly across your royalty pipeline.</h3>
+              </div>
+              <div class="hero-badge">
+                <span class="dot"></span>
+                <strong>Operational</strong>
+              </div>
+            </section>
+
+            <section class="stats-grid">
+              <article class="stat-card accent">
+                <span>Total claims</span>
+                <strong id="totalClaims">0</strong>
+                <small>Across all users</small>
+              </article>
+              <article class="stat-card gold">
+                <span>Pending</span>
+                <strong id="pendingClaims">0</strong>
+                <small>Awaiting review</small>
+              </article>
+              <article class="stat-card green">
+                <span>Approved</span>
+                <strong id="approvedClaims">0</strong>
+                <small>Paid or processed</small>
+              </article>
+              <article class="stat-card red">
+                <span>Rejected</span>
+                <strong id="rejectedClaims">0</strong>
+                <small>Needs resubmission</small>
+              </article>
+            </section>
+
+            <section class="content-card activity-panel">
+              <div class="toolbar">
+                <div>
+                  <h3>Latest activity</h3>
+                </div>
+                <span class="status-tag">Live</span>
+              </div>
+              <div id="activityFeed" class="activity-feed"></div>
+            </section>
+
+            <section class="content-card">
+              <div class="toolbar">
+                <div>
+                  <h3>Recent claims</h3>
+                </div>
+                <div class="filter-controls">
+                  <label for="searchInput" class="sr-only">Search claims</label>
+                  <input id="searchInput" type="search" placeholder="Search claims" aria-label="Search claims" />
+
+                  <label for="statusFilter" class="sr-only">Filter claims by status</label>
+                  <select id="statusFilter" aria-label="Filter claims by status">
+                    <option value="all">All status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+
+                  <label for="sortFilter" class="sr-only">Sort claims</label>
+                  <select id="sortFilter" aria-label="Sort claims">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="highest">Highest amount</option>
+                    <option value="lowest">Lowest amount</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="analytics-grid">
+                <article class="mini-stat">
+                  <span>Average claim</span>
+                  <strong id="avgClaimValue">$0.00</strong>
+                </article>
+                <article class="mini-stat">
+                  <span>Largest claim</span>
+                  <strong id="topClaimValue">$0.00</strong>
+                </article>
+                <article class="mini-stat">
+                  <span>Approval rate</span>
+                  <strong id="approvalRateValue">0%</strong>
+                </article>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Claim ID</th>
+                      <th>Artist</th>
+                      <th>Track</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Submitted</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="claimsTableBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <section id="claimsView" class="view-section hidden">
+            <div class="detail-panel">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Claims</p>
+                  <h3>Claim management</h3>
+                </div>
+                <button class="primary-btn" type="button" id="newClaimBtnSecondary">+ New claim</button>
+              </div>
+              <div class="mini-dashboard">
+                <div class="mini-card">
+                  <span>Open cases</span>
+                  <strong id="openCasesValue">0</strong>
+                </div>
+                <div class="mini-card">
+                  <span>Reviewed this week</span>
+                  <strong id="reviewedWeekValue">0</strong>
+                </div>
+                <div class="mini-card">
+                  <span>Value under review</span>
+                  <strong id="reviewValueTotal">$0.00</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="paymentsView" class="view-section hidden">
+            <div class="detail-panel">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Payments</p>
+                  <h3>Settlement pipeline</h3>
+                </div>
+              </div>
+              <div class="info-stack">
+                <article class="info-card">
+                  <h4>Scheduled payouts</h4>
+                  <p>$18,400.00 this cycle across 3 approved claims.</p>
+                </article>
+                <article class="info-card">
+                  <h4>Outstanding approvals</h4>
+                  <p>2 claims are ready for final review and payment release.</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section id="reportsView" class="view-section hidden">
+            <div class="detail-panel">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Reports</p>
+                  <h3>Royalty performance</h3>
+                </div>
+              </div>
+              <div class="info-stack">
+                <article class="info-card">
+                  <h4>Approval trend</h4>
+                  <p>Claim approval rate remains stable at 32% with reduced processing delays.</p>
+                </article>
+                <article class="info-card">
+                  <h4>Artist distribution</h4>
+                  <p>Top performers are concentrated in streaming and sync-based royalty claims.</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section id="settingsView" class="view-section hidden">
+            <div class="detail-panel">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Settings</p>
+                  <h3>Portal preferences</h3>
+                </div>
+              </div>
+              <div class="info-stack">
+                <article class="info-card">
+                  <h4>Review workflow</h4>
+                  <p>Notifications, thresholds, and approval rules are configured for operational review.</p>
+                </article>
+                <article class="info-card">
+                  <h4>Security</h4>
+                  <p>Session timeout and password policies are active for all portal staff.</p>
+                </article>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="detailModal">
+      <div class="modal-dialog detail-dialog">
+        <div class="modal-header">
+          <h3>Claim details</h3>
+          <button class="close-btn" id="closeDetailBtn">×</button>
+        </div>
+
+        <div id="claimDetailContent" class="claim-detail"></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <div class="modal hidden" id="claimModal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Create claim</h3>
+          <button class="close-btn" id="closeModalBtn">×</button>
+        </div>
+
+        <form id="claimForm">
+          <div class="form-grid">
+            <label>
+              Artist name
+              <input type="text" name="artist" placeholder="e.g. Munezero Hubert" required />
+            </label>
+            <label>
+              Track title
+              <input type="text" name="track" placeholder="e.g. Royalty Song" required />
+            </label>
+            <label>
+              Amount (USD)
+              <input type="number" name="amount" placeholder="2500" min="0" step="0.01" required />
+            </label>
+            <label>
+              Submission date
+              <input type="date" name="submittedDate" required />
+            </label>
+          </div>
+
+          <label>
+            Claim notes
+            <textarea name="notes" rows="4" placeholder="Explain the claim details, dates, and supporting information..."></textarea>
+          </label>
+
+          <label>
+            Supporting document (optional)
+            <input type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" />
+          </label>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-btn" id="cancelModalBtn">Cancel</button>
+            <button type="submit" class="primary-btn">Save claim</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
