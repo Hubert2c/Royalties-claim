@@ -11,7 +11,7 @@ with a public dashboard and a tamper-evident audit log.
 
 | | Link |
 |---|---|
-| 🎬 **Walkthrough video** (about 12 min) | (It is found in the files) |
+| 🎬 **Walkthrough video** (about 12 min) | [Watch or download the MP4](./Royalty%20Hub_Walkthrough_video.mp4) |
 | 📄 **Technical report** (PDF, 5 pages) | — also in this repository: [`docs/Royalty Hub - Technical Report.pdf`](docs/Royalty%20Hub%20-%20Technical%20Report.pdf) |
 | 📊 Test results | [`tests/performance/results/`](tests/performance/results/) · [`tests/compatibility/results/`](tests/compatibility/results/) |
 
