@@ -9,7 +9,7 @@
     "start:api": "node server.js",
     "start:artist": "node artist-server.js",
     "start:licensee": "node licensee-server.js",
-    "test": "node --test \"tests/unit/**/*.test.js\" \"tests/integration/**/*.test.js\"",
+    "test": "node --test \"tests/unit/**/*.test.js\" \"tests/integration/**/*.test.js\" \"tests/production-readiness.test.js\"",
     "reset-db": "node -e \"for (const f of ['','-wal','-shm']) require('fs').rmSync('data/royalty_hub.db'+f,{force:true});console.log('Demo database deleted - it is recreated on next start.')\"",
     "vercel:deploy": "vercel --prod",
     "docker:up": "docker compose up --build",
