@@ -1,19 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "**/*.{html,css,js,png,jpg,jpeg,gif,svg,ico,txt}",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/uploads/(.*)", "dest": "/api/index.js" },
-    { "src": "/(.*)\\.(css|js|png|jpg|jpeg|gif|svg|ico|txt)$", "dest": "/$1.$2" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  "builds": [{ "src": "api/index.js", "use": "@vercel/node", "config": { "includeFiles": ["*.html", "*.css", "app.js", "shared/**", "artist/**", "licensee/**", "public/**", "docs/**", "routes/**", "lib/**", "database.js"] } }],
+  "routes": [{ "src": "/(.*)", "dest": "/api/index.js" }]
 }

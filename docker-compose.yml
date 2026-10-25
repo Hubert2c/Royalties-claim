@@ -1,25 +1,19 @@
-# Docker Compose configuration for the royalty claims platform
-version: "3.9"
-
+# Royalty Hub with a local PostgreSQL database (optional — Docker is not required).
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: royalties-claim-app
+    build: .
+    container_name: royalty-hub-app
     ports:
       - "3001:3001"
       - "8000:8000"
+      - "3002:3002"
     env_file:
       - .env.docker
     environment:
       NODE_ENV: production
       PORT: 3001
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      ALLOWED_ORIGINS: http://localhost:3001,http://localhost:8000
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/royalties_claim
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/royalty_hub
       UPLOAD_DIR: /app/uploads
-      MAX_FILE_SIZE: 5242880
     depends_on:
       - postgres
     volumes:
@@ -28,9 +22,9 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: royalties-claim-postgres
+    container_name: royalty-hub-postgres
     environment:
-      POSTGRES_DB: royalties_claim
+      POSTGRES_DB: royalty_hub
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

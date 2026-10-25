@@ -1,17 +1,17 @@
 {
-  "name": "royalties-claim",
-  "version": "1.0.0",
-  "description": "This project is a small capstone-style MVP for a royalty claims management system.",
+  "name": "royalty-hub",
+  "version": "2.0.0",
+  "description": "Royalty Hub - prototype of a government-administered National Music Royalty Tracking Platform (capstone, ALU).",
   "main": "server.js",
   "scripts": {
     "start": "node start-all.js",
     "dev": "node start-all.js",
-    "start:local": "node start-all.js",
-    "start:admin": "node server.js",
+    "start:api": "node server.js",
     "start:artist": "node artist-server.js",
+    "start:licensee": "node licensee-server.js",
     "test": "node --test",
+    "reset-db": "node -e \"require('fs').rmSync('data/royalty_hub.db',{force:true});console.log('Demo database deleted - it is recreated on next start.')\"",
     "vercel:deploy": "vercel --prod",
-    "docker:build": "docker compose build",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down -v"
   },
@@ -21,7 +21,6 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
@@ -30,5 +29,11 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
     "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^13.0.3"
   }
 }
