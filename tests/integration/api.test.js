@@ -1,5 +1,5 @@
 // =============================================================================
-// tests/api.test.js — end-to-end API tests against a real server and a
+// tests/integration/api.test.js — end-to-end API tests against a real server and a
 // throw-away SQLite database. Follows the full flow from the document:
 // licence → payment → usage → distribution run → approval → payout → statement.
 // Run with: npm test
@@ -18,8 +18,8 @@ process.env.PORT = '3456';
 process.env.DB_PATH = path.join(tmp, 'test.db');
 process.env.UPLOAD_DIR = path.join(tmp, 'uploads');
 
-const { server, ready } = require('../server');
-const { db } = require('../database');
+const { server, ready } = require('../../server');
+const { db } = require('../../database');
 const BASE = 'http://127.0.0.1:3456';
 
 test.after(() => server.close());
