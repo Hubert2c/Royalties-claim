@@ -11,7 +11,7 @@
 //   /api/rightsholder/*  artists / songwriters / publishers     (routes/rightsholder.js)
 //   /api/licensee/*      radio, TV, venues, organisers...       (routes/licensee.js)
 //   /api/disputes        disputes raised by users               (routes/disputes.js)
-//   /api/admin/*         government console (admin + auditor)   (routes/admin.js)
+//   /api/admin/*         government console (admin + auditor)   (routes/admin/)
 //   /api/public/*        public transparency data, no login     (routes/public.js)
 //   /api/open/v1/*       open API for machines (API keys)       (routes/open.js)
 //
@@ -31,6 +31,7 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { initializeDatabase } = require('./database');
+const { errorHandler } = require('./lib/errors');
 
 // On Vercel only /tmp is writable, so keep uploaded evidence there by default.
 if (process.env.VERCEL && !process.env.UPLOAD_DIR) process.env.UPLOAD_DIR = '/tmp/royalty-hub-uploads';
@@ -68,22 +69,28 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Requests without an Origin header (curl, server-to-server, same-origin GETs) are allowed.
-    if (!origin || allowedOrigins.includes(origin) || (!isProduction && /^http:\/\/localhost:\d+$/.test(origin))) {
-      return callback(null, true);
-    }
-    return callback(new Error('CORS policy blocked this origin.'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key']
+// CORS: which other websites may call this API from a browser.
+// Fixed after compatibility testing: a page always may call its OWN server,
+// whatever address it was opened with (localhost, 127.0.0.1, a LAN IP from a
+// phone on the same Wi-Fi, or the production domain). Before, only the
+// addresses in ALLOWED_ORIGINS worked, so logging in from a phone failed.
+const corsOptions = { methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'] };
+app.use(cors((req, callback) => {
+  const origin = req.headers.origin;
+  const sameOrigin = Boolean(origin) && origin.replace(/^https?:\/\//, '') === req.headers.host;
+  const allowed = !origin // curl, server-to-server, same-origin GETs
+    || sameOrigin
+    || allowedOrigins.includes(origin)
+    || (!isProduction && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)); // the other local portals in development
+  if (!allowed) return callback(new Error('CORS policy blocked this origin.'));
+  return callback(null, { ...corsOptions, origin: true });
 }));
 
 // Limit how many requests one IP can make (protects logins against guessing).
+// RATE_LIMIT_MAX overrides the default (e.g. for load tests or a busy monitor).
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProduction ? 300 : 5000,
+  max: Number(process.env.RATE_LIMIT_MAX) || (isProduction ? 300 : 5000),
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests, please try again later.' }
@@ -99,7 +106,7 @@ app.use('/api/rightsholder', require('./routes/rightsholder'));
 app.use('/api/licensee', require('./routes/licensee'));
 app.use('/api/disputes', require('./routes/disputes'));
 app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin', require('./routes/admin/index'));
 app.use('/api/public', require('./routes/public'));
 app.use('/api/open/v1', require('./routes/open'));
 
@@ -121,12 +128,8 @@ app.get('/', send('index.html'));
 
 // --- Errors ------------------------------------------------------------------------
 // Express 5 passes errors from async route handlers here automatically.
-app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
-  if (error && error.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ message: 'The file is too large.' });
-  if (error && error.message === 'CORS policy blocked this origin.') return res.status(403).json({ message: error.message });
-  console.error(error);
-  return res.status(500).json({ message: 'Something went wrong on the server.' });
-});
+// AppError subclasses (ValidationError, ConflictError...) carry their own status.
+app.use(errorHandler);
 
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, 'index.html')));
 

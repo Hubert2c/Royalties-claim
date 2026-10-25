@@ -15,9 +15,11 @@
 
 const express = require('express');
 const { db } = require('../database');
-const { apiKeyRequired } = require('../lib/auth');
-const { appendAudit } = require('../lib/audit');
-const { recordUsage } = require('../lib/usage');
+const { audit, usage: usageService } = require('../lib/services');
+const { apiKeyRequired } = require('../lib/security/auth');
+const { UsageService } = require('../lib/usage/UsageService');
+const { JsonUsageParser } = require('../lib/usage/ReportParsers');
+const { ValidationError } = require('../lib/errors');
 
 const router = express.Router();
 router.use(apiKeyRequired);
@@ -25,9 +27,9 @@ router.use(apiKeyRequired);
 // Work out which licensee a request is for, based on the key type.
 async function resolveLicensee(req, stationId) {
   if (req.apiKey.owner_type === 'licensee') return req.apiKey.owner_id;
-  if (!stationId) throw new Error('Monitor keys must send "station_id" (the licensee ID of the station).');
+  if (!stationId) throw new ValidationError('Monitor keys must send "station_id" (the licensee ID of the station).');
   const station = await db.prepare('SELECT id FROM licensees WHERE id = ?').get(stationId);
-  if (!station) throw new Error(`Unknown station_id "${stationId}".`);
+  if (!station) throw new ValidationError(`Unknown station_id "${stationId}".`);
   return station.id;
 }
 
@@ -38,12 +40,10 @@ const actorFor = (req) => ({ id: `api-key:${req.apiKey.id}`, role: `api_${req.ap
 router.post('/usage', async (req, res) => {
   try {
     const { source = 'play_log', station_id: stationId, events } = req.body || {};
-    if (!['play_log', 'set_list', 'cue_sheet', 'ddex'].includes(source)) {
-      return res.status(400).json({ message: 'source must be play_log, set_list, cue_sheet or ddex.' });
-    }
+    UsageService.assertReportable(source);
     const licenseeId = await resolveLicensee(req, stationId);
-    const summary = await recordUsage({ licenseeId, source, rows: events });
-    await appendAudit(db, actorFor(req), 'open_api_usage', 'usage_events', null, { licenseeId, source, saved: summary.saved, matched: summary.matched });
+    const summary = await usageService.record({ licenseeId, source, rows: new JsonUsageParser().parse(events) });
+    await audit.append(actorFor(req), 'open_api_usage', 'usage_events', null, { licenseeId, source, saved: summary.saved, matched: summary.matched });
     return res.status(201).json({ saved: summary.saved, matched: summary.matched, unmatched: summary.unmatched, errors: summary.errors, events: summary.events });
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -58,9 +58,9 @@ router.post('/fingerprint-matches', async (req, res) => {
     const { station_id: stationId, played_at: playedAt, duration_sec: durationSec, fingerprint } = req.body || {};
     if (!fingerprint) return res.status(400).json({ message: 'fingerprint is required.' });
     const licenseeId = await resolveLicensee(req, stationId);
-    const summary = await recordUsage({ licenseeId, source: 'fingerprint', rows: [{ fingerprint, played_at: playedAt, duration_sec: durationSec }] });
+    const summary = await usageService.record({ licenseeId, source: 'fingerprint', rows: [{ fingerprint, played_at: playedAt, duration_sec: durationSec }] });
     const event = summary.events[0];
-    await appendAudit(db, actorFor(req), 'open_api_fingerprint', 'usage_events', event ? event.id : null, { licenseeId, matched: summary.matched });
+    await audit.append(actorFor(req), 'open_api_fingerprint', 'usage_events', event ? event.id : null, { licenseeId, matched: summary.matched });
     return res.status(201).json({ usage_id: event ? event.id : null, matched: Boolean(event && event.matched), recording_id: event ? event.recording_id : null, title: event ? event.title : null, confidence: event ? event.confidence : null, errors: summary.errors });
   } catch (error) {
     return res.status(400).json({ message: error.message });

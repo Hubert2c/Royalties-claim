@@ -4,7 +4,7 @@
 
 const express = require('express');
 const { db } = require('../database');
-const { authRequired } = require('../lib/auth');
+const { authRequired } = require('../lib/security/auth');
 
 const router = express.Router();
 router.use(authRequired);

@@ -6,9 +6,8 @@
 
 const express = require('express');
 const { db, newId, nowIso } = require('../database');
-const { authRequired, requireRole } = require('../lib/auth');
-const { appendAudit } = require('../lib/audit');
-const { notifyRoles } = require('../lib/notify');
+const { audit, notifications } = require('../lib/services');
+const { authRequired, requireRole } = require('../lib/security/auth');
 
 const router = express.Router();
 router.use(authRequired, requireRole('rightsholder', 'licensee'));
@@ -30,8 +29,8 @@ router.post('/', async (req, res) => {
   const id = newId('DSP');
   await db.prepare('INSERT INTO disputes (id, raised_by, subject_type, subject_id, reason, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
     .run(id, req.user.id, subjectType, subjectId ? String(subjectId).trim().slice(0, 60) : null, String(reason).trim().slice(0, 1000), 'open', nowIso());
-  await appendAudit(db, req.user, 'raise_dispute', 'dispute', id, { subjectType, subjectId: subjectId || null });
-  await notifyRoles(['admin'], `New dispute from ${req.user.name}`, String(reason).trim().slice(0, 140), 'claims');
+  await audit.append(req.user, 'raise_dispute', 'dispute', id, { subjectType, subjectId: subjectId || null });
+  await notifications.notifyRoles(['admin'], `New dispute from ${req.user.name}`, String(reason).trim().slice(0, 140), 'claims');
   res.status(201).json({ message: 'Dispute submitted. You will see the decision here.', id });
 });
 

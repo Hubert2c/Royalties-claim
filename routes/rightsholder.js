@@ -13,12 +13,10 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const { db, newId, nowIso } = require('../database');
-const { authRequired, requireRole } = require('../lib/auth');
-const { appendAudit } = require('../lib/audit');
-const { encrypt } = require('../lib/crypto-box');
-const { parseFingerprint } = require('../lib/fingerprint');
-const { splitsAreComplete } = require('../lib/royalty-engine');
-const { notifyUsers, notifyRoles, notifyHolders } = require('../lib/notify');
+const { audit, fieldEncryptor, notifications } = require('../lib/services');
+const { authRequired, requireRole } = require('../lib/security/auth');
+const { FingerprintMatcher } = require('../lib/fingerprint/FingerprintMatcher');
+const { RoyaltyEngine } = require('../lib/royalties/RoyaltyEngine');
 
 const router = express.Router();
 router.use(authRequired, requireRole('rightsholder'));
@@ -48,7 +46,7 @@ async function myHolder(req) {
 // Helper: after any split change, set the work to "active" only when its splits are complete.
 async function refreshWorkStatus(workId) {
   const splits = await db.prepare("SELECT * FROM splits WHERE work_id = ? AND status <> 'rejected'").all(workId);
-  const status = splitsAreComplete(splits) ? 'active' : 'pending_splits';
+  const status = RoyaltyEngine.splitsAreComplete(splits) ? 'active' : 'pending_splits';
   await db.prepare('UPDATE works SET status = ? WHERE id = ?').run(status, workId);
   return status;
 }
@@ -89,9 +87,9 @@ router.put('/profile', async (req, res) => {
     .run(ipiNumber ? String(ipiNumber).trim() : holder.ipi_number, payoutMethod || holder.payout_method, holder.id);
   if (payoutRef) {
     const ref = String(payoutRef).trim();
-    await db.prepare('UPDATE rights_holders SET payout_ref_encrypted = ?, payout_ref_last4 = ? WHERE id = ?').run(encrypt(ref), ref.slice(-4), holder.id);
+    await db.prepare('UPDATE rights_holders SET payout_ref_encrypted = ?, payout_ref_last4 = ? WHERE id = ?').run(fieldEncryptor.encrypt(ref), ref.slice(-4), holder.id);
   }
-  await appendAudit(db, req.user, 'update_profile', 'rights_holder', holder.id, { ipi: Boolean(ipiNumber), payout: Boolean(payoutRef) });
+  await audit.append(req.user, 'update_profile', 'rights_holder', holder.id, { ipi: Boolean(ipiNumber), payout: Boolean(payoutRef) });
   return res.json({ message: 'Profile updated.' });
 });
 
@@ -152,7 +150,7 @@ router.post('/works', async (req, res) => {
   await db.prepare('INSERT INTO works (id, title, iswc, status, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)')
     .run(workId, String(title).trim(), iswc ? String(iswc).trim().toUpperCase() : null, 'pending_splits', req.user.id, nowIso());
 
-  const fingerprint = parseFingerprint(recording.fingerprint);
+  const fingerprint = FingerprintMatcher.parse(recording.fingerprint);
   await db.prepare('INSERT INTO recordings (id, work_id, title, performer, isrc, duration_sec, fingerprint, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
     .run(newId('REC'), workId, String(recording.title || title).trim(), recording.performer ? String(recording.performer).trim() : holder.full_name,
       recording.isrc ? String(recording.isrc).replace(/-/g, '').trim().toUpperCase() : null,
@@ -168,11 +166,11 @@ router.post('/works', async (req, res) => {
   }
 
   const status = await refreshWorkStatus(workId);
-  await appendAudit(db, req.user, 'register_work', 'work', workId, { title, splits: splits.map((s) => [s.holder_id, s.share_percent]) });
+  await audit.append(req.user, 'register_work', 'work', workId, { title, splits: splits.map((s) => [s.holder_id, s.share_percent]) });
 
   // Tell every co-writer that they have a share to confirm.
   for (const split of splits.filter((s) => s.holder_id !== holder.id)) {
-    await notifyHolders(split.holder_id, `Confirm your share of "${String(title).trim()}"`,
+    await notifications.notifyHolders(split.holder_id, `Confirm your share of "${String(title).trim()}"`,
       `${holder.full_name} listed you at ${Number(split.share_percent)}% (${split.right_type}). Royalties for this song are held until everyone confirms.`, 'confirm');
   }
   return res.status(201).json({ message: status === 'active' ? 'Work registered.' : 'Work registered. Co-writers must confirm their splits before royalties can be paid.', workId, status });
@@ -198,8 +196,8 @@ router.put('/works/:id/splits', async (req, res) => {
         isMe ? 'confirmed' : 'pending', isMe ? nowIso() : null, nowIso());
   }
   const status = await refreshWorkStatus(work.id);
-  await appendAudit(db, req.user, 'replace_splits', 'work', work.id, { splits: req.body.splits.map((s) => [s.holder_id, s.share_percent]) });
-  await notifyHolders(req.body.splits.filter((s) => s.holder_id !== holder.id).map((s) => s.holder_id),
+  await audit.append(req.user, 'replace_splits', 'work', work.id, { splits: req.body.splits.map((s) => [s.holder_id, s.share_percent]) });
+  await notifications.notifyHolders(req.body.splits.filter((s) => s.holder_id !== holder.id).map((s) => s.holder_id),
     `Splits changed on "${work.title}"`, 'Please check and confirm your new share.', 'confirm');
   return res.json({ message: 'Splits updated and sent for confirmation.', status });
 });
@@ -234,14 +232,14 @@ router.post('/splits/:id/:decision', async (req, res) => {
     await db.prepare("UPDATE splits SET status = 'rejected' WHERE id = ?").run(split.id);
   }
   const status = await refreshWorkStatus(split.work_id);
-  await appendAudit(db, req.user, `${decision}_split`, 'split', split.id, { work: split.work_id, share: split.share_percent });
+  await audit.append(req.user, `${decision}_split`, 'split', split.id, { work: split.work_id, share: split.share_percent });
 
   // Let the person who registered the work know what happened.
   const work = await db.prepare('SELECT title, created_by FROM works WHERE id = ?').get(split.work_id);
   if (decision === 'reject') {
-    await notifyUsers(work.created_by, `${holder.full_name} rejected their split on "${work.title}"`, 'Open the work and correct the splits.', 'works');
+    await notifications.notifyUsers(work.created_by, `${holder.full_name} rejected their split on "${work.title}"`, 'Open the work and correct the splits.', 'works');
   } else if (status === 'active') {
-    await notifyUsers(work.created_by, `All splits confirmed for "${work.title}"`, 'Royalties for this song will now be paid instead of held.', 'works');
+    await notifications.notifyUsers(work.created_by, `All splits confirmed for "${work.title}"`, 'Royalties for this song will now be paid instead of held.', 'works');
   }
   return res.json({ message: decision === 'confirm' ? 'Split confirmed.' : 'Split rejected. The person who registered the work has been asked to correct it.', workStatus: status });
 });
@@ -289,7 +287,7 @@ router.get('/statements', async (req, res) => {
 // GET /api/rightsholder/insights
 router.get('/insights', async (req, res) => {
   const holder = await myHolder(req);
-  const { lastMonths, fillMonths } = require('../lib/periods');
+  const { lastMonths, fillMonths } = require('../lib/util/periods');
   const months = lastMonths(12);
 
   // Works I hold a (non-rejected) share in, and my share of each.
@@ -365,8 +363,8 @@ router.post('/claims', (req, res, next) => {
       await db.prepare(`INSERT INTO usage_claims (id, usage_id, claimant_user_id, recording_id, note, evidence_file, status, created_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
         .run(claimId, usageId, req.user.id, recordingId, note ? String(note).slice(0, 1000) : null, req.file ? req.file.filename : null, 'pending', nowIso());
-      await appendAudit(db, req.user, 'claim_usage', 'usage_claim', claimId, { usageId, recordingId });
-      await notifyRoles(['admin'], 'New claim on an unmatched play', `${holder.full_name} claims "${usage.raw_title || 'an unknown title'}".`, 'claims');
+      await audit.append(req.user, 'claim_usage', 'usage_claim', claimId, { usageId, recordingId });
+      await notifications.notifyRoles(['admin'], 'New claim on an unmatched play', `${holder.full_name} claims "${usage.raw_title || 'an unknown title'}".`, 'claims');
       return res.status(201).json({ message: 'Claim submitted. The administrator will review it.', claimId });
     } catch (error) {
       return next(error);

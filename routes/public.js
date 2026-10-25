@@ -12,10 +12,16 @@
 
 const express = require('express');
 const { db } = require('../database');
+const { dashboardCache } = require('../lib/util/TtlCache');
 
 const router = express.Router();
 
 router.get('/summary', async (req, res) => {
+  // Cached for a few seconds (see lib/util/TtlCache.js): this page is public and may be busy.
+  res.json(await dashboardCache.get('public-summary', () => buildSummary()));
+});
+
+async function buildSummary() {
   const one = async (sql) => Number(Object.values(await db.prepare(sql).get())[0] || 0);
   const summary = {
     collected: await one('SELECT COALESCE(SUM(amount), 0) AS v FROM payments'),
@@ -38,15 +44,15 @@ router.get('/summary', async (req, res) => {
     GROUP BY li.category ORDER BY amount DESC`).all();
 
   // Last 12 months of collections and payouts, for the public chart.
-  const { lastMonths, fillMonths } = require('../lib/periods');
+  const { lastMonths, fillMonths } = require('../lib/util/periods');
   const months = lastMonths(12);
   const collectionsRows = await db.prepare(`SELECT substr(paid_at, 1, 7) AS period, SUM(amount) AS value FROM payments
     WHERE substr(paid_at, 1, 7) >= ? GROUP BY substr(paid_at, 1, 7)`).all(months[0]);
   const payoutRows = await db.prepare(`SELECT r.period AS period, SUM(rl.amount) AS value FROM royalty_lines rl JOIN distribution_runs r ON r.id = rl.run_id
     WHERE rl.paid_status = 'paid' AND r.period >= ? GROUP BY r.period`).all(months[0]);
 
-  res.json({ summary, runs, collectionsByCategory, monthly: { months, collections: fillMonths(months, collectionsRows), payouts: fillMonths(months, payoutRows) } });
-});
+  return { summary, runs, collectionsByCategory, monthly: { months, collections: fillMonths(months, collectionsRows), payouts: fillMonths(months, payoutRows) } };
+}
 
 // Unmatched usage — title/artist as reported, where and when. No personal data.
 router.get('/unclaimed', async (req, res) => {

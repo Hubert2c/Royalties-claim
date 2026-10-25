@@ -9,10 +9,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { db, newId, nowIso } = require('../database');
-const { createToken, authRequired } = require('../lib/auth');
-const { appendAudit } = require('../lib/audit');
-const { encrypt } = require('../lib/crypto-box');
-const { CATEGORIES } = require('../lib/tariffs');
+const { audit, fieldEncryptor } = require('../lib/services');
+const { createToken, authRequired } = require('../lib/security/auth');
+const { CATEGORIES } = require('../lib/tariffs/TariffRules');
 
 const router = express.Router();
 
@@ -57,7 +56,7 @@ router.post('/register', async (req, res) => {
     await db.prepare(`INSERT INTO rights_holders (id, user_id, full_name, ipi_number, holder_type, payout_method,
         payout_ref_encrypted, payout_ref_last4, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(profileId, userId, String(name).trim(), req.body.ipiNumber ? String(req.body.ipiNumber).trim() : null,
-        req.body.holderType, req.body.payoutMethod || null, encrypt(payoutRef), payoutRef ? payoutRef.slice(-4) : null, 'active', nowIso());
+        req.body.holderType, req.body.payoutMethod || null, fieldEncryptor.encrypt(payoutRef), payoutRef ? payoutRef.slice(-4) : null, 'active', nowIso());
   } else {
     profileId = newId('LIC');
     await db.prepare('INSERT INTO licensees (id, user_id, name, category, tin, rura_licence_no, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
@@ -66,7 +65,7 @@ router.post('/register', async (req, res) => {
   }
 
   const user = { id: userId, name: String(name).trim(), email: normalizedEmail, role };
-  await appendAudit(db, user, 'register', role === 'rightsholder' ? 'rights_holder' : 'licensee', profileId, { email: normalizedEmail });
+  await audit.append(user, 'register', role === 'rightsholder' ? 'rights_holder' : 'licensee', profileId, { email: normalizedEmail });
   return res.status(201).json({ token: createToken(user), user });
 });
 
@@ -87,7 +86,7 @@ router.post('/login', async (req, res) => {
   }
 
   const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role };
-  await appendAudit(db, safeUser, 'login', 'user', user.id, null);
+  await audit.append(safeUser, 'login', 'user', user.id, null);
   return res.json({ token: createToken(safeUser), user: safeUser });
 });
 
