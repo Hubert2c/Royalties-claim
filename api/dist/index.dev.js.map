@@ -1,1 +1,0 @@
-{"version":3,"sources":["index.js"],"names":["require","app","module","exports"],"mappings":";;eAAgBA,OAAO,CAAC,WAAD,C;IAAfC,G,YAAAA,G;;AAERC,MAAM,CAACC,OAAP,GAAiBF,GAAjB","sourcesContent":["const { app } = require('../server');\r\n\r\nmodule.exports = app;\r\n"],"file":"index.dev.js"}

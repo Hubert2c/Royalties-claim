@@ -1,7 +1,0 @@
-"use strict";
-
-var _require = require('../server'),
-    app = _require.app;
-
-module.exports = app;
-//# sourceMappingURL=index.dev.js.map
