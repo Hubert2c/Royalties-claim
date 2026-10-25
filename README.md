@@ -11,8 +11,8 @@ with a public dashboard and a tamper-evident audit log.
 
 | | Link |
 |---|---|
-| 🎬 **Walkthrough video** (narrated, ~12 min) | **ADD LINK HERE** (YouTube unlisted or Google Drive, "anyone with the link") |
-| 📄 **Technical report** (PDF, 5 pages) | **ADD LINK HERE** — also in this repository: [`docs/Royalty Hub - Technical Report.pdf`](docs/Royalty%20Hub%20-%20Technical%20Report.pdf) |
+| 🎬 **Walkthrough video** (about 12 min) | (It is found in the files) |
+| 📄 **Technical report** (PDF, 5 pages) | — also in this repository: [`docs/Royalty Hub - Technical Report.pdf`](docs/Royalty%20Hub%20-%20Technical%20Report.pdf) |
 | 📊 Test results | [`tests/performance/results/`](tests/performance/results/) · [`tests/compatibility/results/`](tests/compatibility/results/) |
 
 > **Prototype notice.** Payments and payouts run in **simulated** mode (no money moves); the payment-gateway
