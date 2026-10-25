@@ -1,0 +1,194 @@
+{
+  "date": "2026-10-25T05:35:33.268Z",
+  "machine": {
+    "cpu": "Intel(R) Xeon(R) Processor",
+    "cores": 2,
+    "ramGB": 8,
+    "os": "Linux 6.18.44-fc-v153",
+    "node": "v22.23.4"
+  },
+  "durationPerScenarioSec": 10,
+  "startupMs": 23,
+  "rows": [
+    {
+      "endpoint": "GET /api/public/summary (public dashboard)",
+      "users": 10,
+      "requests": 76292,
+      "reqPerSec": 7630,
+      "latencyP50": 1,
+      "latencyP97_5": 2,
+      "latencyP99": 3,
+      "errors": 0,
+      "cpuAvg": 42,
+      "memMaxMB": 78
+    },
+    {
+      "endpoint": "GET /api/admin/overview (login + 12 queries)",
+      "users": 10,
+      "requests": 31176,
+      "reqPerSec": 2835,
+      "latencyP50": 3,
+      "latencyP97_5": 5,
+      "latencyP99": 6,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/fingerprint-matches (matching)",
+      "users": 10,
+      "requests": 13085,
+      "reqPerSec": 1309,
+      "latencyP50": 6,
+      "latencyP97_5": 16,
+      "latencyP99": 18,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/usage (10-play report)",
+      "users": 10,
+      "requests": 6282,
+      "reqPerSec": 571,
+      "latencyP50": 16,
+      "latencyP97_5": 31,
+      "latencyP99": 33,
+      "errors": 2,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "GET /api/public/summary (public dashboard)",
+      "users": 50,
+      "requests": 83874,
+      "reqPerSec": 7625,
+      "latencyP50": 5,
+      "latencyP97_5": 9,
+      "latencyP99": 10,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "GET /api/admin/overview (login + 12 queries)",
+      "users": 50,
+      "requests": 30582,
+      "reqPerSec": 2781,
+      "latencyP50": 16,
+      "latencyP97_5": 25,
+      "latencyP99": 28,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/fingerprint-matches (matching)",
+      "users": 50,
+      "requests": 13953,
+      "reqPerSec": 1268,
+      "latencyP50": 38,
+      "latencyP97_5": 54,
+      "latencyP99": 62,
+      "errors": 2,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/usage (10-play report)",
+      "users": 50,
+      "requests": 6091,
+      "reqPerSec": 554,
+      "latencyP50": 87,
+      "latencyP97_5": 105,
+      "latencyP99": 172,
+      "errors": 1,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "GET /api/public/summary (public dashboard)",
+      "users": 100,
+      "requests": 86146,
+      "reqPerSec": 7832,
+      "latencyP50": 11,
+      "latencyP97_5": 16,
+      "latencyP99": 18,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "GET /api/admin/overview (login + 12 queries)",
+      "users": 100,
+      "requests": 31868,
+      "reqPerSec": 2898,
+      "latencyP50": 34,
+      "latencyP97_5": 43,
+      "latencyP99": 45,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/fingerprint-matches (matching)",
+      "users": 100,
+      "requests": 14418,
+      "reqPerSec": 1311,
+      "latencyP50": 73,
+      "latencyP97_5": 92,
+      "latencyP99": 105,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "POST /api/open/v1/usage (10-play report)",
+      "users": 100,
+      "requests": 5456,
+      "reqPerSec": 546,
+      "latencyP50": 134,
+      "latencyP97_5": 203,
+      "latencyP99": 1914,
+      "errors": 3,
+      "cpuAvg": null,
+      "memMaxMB": null
+    }
+  ],
+  "bulk": {
+    "plays": 100000,
+    "seconds": 12.051
+  },
+  "bigRows": [
+    {
+      "endpoint": "GET /api/public/summary (public dashboard)",
+      "users": 50,
+      "requests": 82909,
+      "reqPerSec": 7538,
+      "latencyP50": 6,
+      "latencyP97_5": 10,
+      "latencyP99": 12,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    },
+    {
+      "endpoint": "GET /api/admin/overview (login + 12 queries)",
+      "users": 50,
+      "requests": 31226,
+      "reqPerSec": 2839,
+      "latencyP50": 16,
+      "latencyP97_5": 24,
+      "latencyP99": 27,
+      "errors": 0,
+      "cpuAvg": null,
+      "memMaxMB": null
+    }
+  ],
+  "stress": {
+    "sent": 1000,
+    "accepted": 199,
+    "refused429": 801,
+    "limit": 200
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "date": "2026-10-25T05:25:17.190Z",
+  "machine": "Intel(R) Xeon(R) Processor, 2 cores, 8 GB, Linux 6.18.44-fc-v153",
+  "compatibility": [
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Desktop 1920×1080",
+      "page": "Government console",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 821,
+      "errors": [],
+      "screenshot": "screens/chromium-desktop-1920-1080-government-console.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Desktop 1920×1080",
+      "page": "Rights-holder portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 756,
+      "errors": [],
+      "screenshot": "screens/chromium-desktop-1920-1080-rights-holder-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Desktop 1920×1080",
+      "page": "Licensee portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 731,
+      "errors": [],
+      "screenshot": "screens/chromium-desktop-1920-1080-licensee-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Desktop 1920×1080",
+      "page": "Public dashboard",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 602,
+      "errors": [],
+      "screenshot": "screens/chromium-desktop-1920-1080-public-dashboard.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Laptop 1366×768",
+      "page": "Government console",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 752,
+      "errors": [],
+      "screenshot": "screens/chromium-laptop-1366-768-government-console.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Laptop 1366×768",
+      "page": "Rights-holder portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 740,
+      "errors": [],
+      "screenshot": "screens/chromium-laptop-1366-768-rights-holder-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Laptop 1366×768",
+      "page": "Licensee portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 745,
+      "errors": [],
+      "screenshot": "screens/chromium-laptop-1366-768-licensee-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Laptop 1366×768",
+      "page": "Public dashboard",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 602,
+      "errors": [],
+      "screenshot": "screens/chromium-laptop-1366-768-public-dashboard.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Tablet (iPad Mini)",
+      "page": "Government console",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 753,
+      "errors": [],
+      "screenshot": "screens/chromium-tablet-ipad-mini--government-console.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Tablet (iPad Mini)",
+      "page": "Rights-holder portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 726,
+      "errors": [],
+      "screenshot": "screens/chromium-tablet-ipad-mini--rights-holder-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Tablet (iPad Mini)",
+      "page": "Licensee portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 726,
+      "errors": [],
+      "screenshot": "screens/chromium-tablet-ipad-mini--licensee-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Tablet (iPad Mini)",
+      "page": "Public dashboard",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 608,
+      "errors": [],
+      "screenshot": "screens/chromium-tablet-ipad-mini--public-dashboard.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (iPhone 13)",
+      "page": "Government console",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 761,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-iphone-13--government-console.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (iPhone 13)",
+      "page": "Rights-holder portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 722,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-iphone-13--rights-holder-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (iPhone 13)",
+      "page": "Licensee portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 728,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-iphone-13--licensee-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (iPhone 13)",
+      "page": "Public dashboard",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 604,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-iphone-13--public-dashboard.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (Pixel 5)",
+      "page": "Government console",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 761,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-pixel-5--government-console.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (Pixel 5)",
+      "page": "Rights-holder portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 765,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-pixel-5--rights-holder-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (Pixel 5)",
+      "page": "Licensee portal",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 722,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-pixel-5--licensee-portal.png"
+    },
+    {
+      "browser": "chromium 153.0.8010.12",
+      "profile": "Phone (Pixel 5)",
+      "page": "Public dashboard",
+      "works": true,
+      "sidewaysScrollPx": 0,
+      "ms": 594,
+      "errors": [],
+      "screenshot": "screens/chromium-phone-pixel-5--public-dashboard.png"
+    },
+    {
+      "browser": "firefox",
+      "profile": "-",
+      "page": "-",
+      "works": null,
+      "errors": [
+        "browser not installed on this machine"
+      ]
+    },
+    {
+      "browser": "webkit",
+      "profile": "-",
+      "page": "-",
+      "works": null,
+      "errors": [
+        "browser not installed on this machine"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "hardware": "High-end (no throttling)",
+      "page": "Public dashboard",
+      "fcpMs": 116,
+      "domContentLoadedMs": 55,
+      "loadMs": 80,
+      "readyMs": 608,
+      "jsHeapMB": 2.3,
+      "domNodes": 618,
+      "transferredKB": 78
+    },
+    {
+      "hardware": "High-end (no throttling)",
+      "page": "Government console",
+      "fcpMs": 80,
+      "domContentLoadedMs": 69,
+      "loadMs": 72,
+      "readyMs": 756,
+      "jsHeapMB": 2.9,
+      "domNodes": 1726,
+      "transferredKB": 127
+    },
+    {
+      "hardware": "Mid-range (CPU ×4, Fast 3G)",
+      "page": "Public dashboard",
+      "fcpMs": 776,
+      "domContentLoadedMs": 762,
+      "loadMs": 939,
+      "readyMs": 1598,
+      "jsHeapMB": 2.3,
+      "domNodes": 618,
+      "transferredKB": 78
+    },
+    {
+      "hardware": "Mid-range (CPU ×4, Fast 3G)",
+      "page": "Government console",
+      "fcpMs": 904,
+      "domContentLoadedMs": 903,
+      "loadMs": 1055,
+      "readyMs": 2296,
+      "jsHeapMB": 2.9,
+      "domNodes": 1726,
+      "transferredKB": 127
+    },
+    {
+      "hardware": "Low-end (CPU ×6, Slow 3G)",
+      "page": "Public dashboard",
+      "fcpMs": 2104,
+      "domContentLoadedMs": 2104,
+      "loadMs": 2576,
+      "readyMs": 3481,
+      "jsHeapMB": 2.3,
+      "domNodes": 618,
+      "transferredKB": 78
+    },
+    {
+      "hardware": "Low-end (CPU ×6, Slow 3G)",
+      "page": "Government console",
+      "fcpMs": 2472,
+      "domContentLoadedMs": 2515,
+      "loadMs": 2911,
+      "readyMs": 5093,
+      "jsHeapMB": 2.4,
+      "domNodes": 1726,
+      "transferredKB": 127
+    }
+  ]
+}
