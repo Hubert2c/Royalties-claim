@@ -3,341 +3,327 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Royalty Claims Portal</title>
+    <title>Royalty Hub | Government Console</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/shared/storage-keys.js"></script>
+    <script src="/shared/icons.js"></script>
+    <script src="/shared/ui.js"></script>
+    <script src="/shared/widgets.js"></script>
   </head>
   <body>
+    <!-- ============================ LOGIN ============================ -->
     <div id="authView" class="auth-shell">
       <div class="auth-card">
         <div class="auth-brand">
           <div class="brand-icon">R</div>
           <div>
-            <p class="eyebrow">Claims portal</p>
+            <p class="eyebrow">National Music Royalty Tracking Platform</p>
             <h1>Royalty Hub</h1>
           </div>
         </div>
 
         <div class="auth-header">
-          <h2>Admin and reviewer access</h2>
-          <p>Sign in to manage claim reviews and operations</p>
+          <h2>Choose your portal</h2>
+          <p>The platform is administered by the Government (Rwanda Intellectual Property Office). Artists and music users have their own portals.</p>
         </div>
 
-        <form id="adminLoginForm" class="auth-form">
-          <label>
-            Email
-            <input type="email" id="adminLoginEmail" placeholder="admin@royaltyhub.com" required />
-          </label>
-          <label>
-            Password
-            <input type="password" id="adminLoginPassword" placeholder="••••••••" required />
-          </label>
-          <button class="primary-btn full" type="submit">Admin login</button>
+        <div class="portal-choice" aria-label="Portal selection">
+          <button class="portal-option active" type="button">Government console</button>
+          <a class="portal-option" href="/artist/">Rights-holder portal</a>
+          <a class="portal-option" href="/licensee/">Licensee portal</a>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <label>Email <input type="email" name="email" placeholder="admin@royaltyhub.com" required /></label>
+          <label>Password <input type="password" name="password" placeholder="••••••••" required /></label>
+          <button class="primary-btn full" type="submit">Log in to the console</button>
         </form>
 
+        <div class="demo-box">
+          <p><strong>Demo accounts</strong></p>
+          <ul>
+            <li>Administrator: admin@royaltyhub.com / admin123</li>
+            <li>Auditor (read-only): auditor@royaltyhub.com / auditor123</li>
+          </ul>
+        </div>
+        <p class="auth-footer-links"><a href="/public/">Public transparency dashboard</a> · <a href="/docs/">Open API docs</a></p>
       </div>
     </div>
 
+    <!-- ============================ CONSOLE ============================ -->
     <div id="appView" class="hidden">
       <div class="app-shell">
+        <div class="nav-backdrop"></div>
         <aside class="sidebar">
-          <div class="brand-wrap">
-            <div class="brand-icon">R</div>
-            <div>
-              <p class="eyebrow">Claims</p>
-              <h1>Royalty Hub</h1>
+          <div>
+            <div class="brand-wrap">
+              <div class="brand-icon">R</div>
+              <div>
+                <p class="eyebrow">Government console</p>
+                <h1>Royalty Hub</h1>
+              </div>
             </div>
+            <nav class="nav" aria-label="Console navigation">
+              <button class="nav-item active" type="button" data-view="overview"><span class="icon" data-icon="overview"></span>Overview</button>
+              <button class="nav-item" type="button" data-view="licences"><span class="icon" data-icon="licence"></span>Licences</button>
+              <button class="nav-item" type="button" data-view="tariffs"><span class="icon" data-icon="tariff"></span>Tariffs</button>
+              <button class="nav-item" type="button" data-view="usage"><span class="icon" data-icon="usage"></span>Usage &amp; monitoring</button>
+              <button class="nav-item" type="button" data-view="compliance"><span class="icon" data-icon="compliance"></span>Compliance</button>
+              <button class="nav-item" type="button" data-view="runs"><span class="icon" data-icon="runs"></span>Distributions</button>
+              <button class="nav-item" type="button" data-view="claims"><span class="icon" data-icon="claims"></span>Claims &amp; disputes</button>
+              <button class="nav-item" type="button" data-view="catalogue"><span class="icon" data-icon="catalogue"></span>Catalogue</button>
+              <button class="nav-item" type="button" data-view="audit"><span class="icon" data-icon="audit"></span>Audit log</button>
+              <button class="nav-item" type="button" data-view="settings"><span class="icon" data-icon="settings"></span>Settings &amp; API keys</button>
+            </nav>
           </div>
-
-          <nav class="nav" aria-label="Primary navigation">
-            <button class="nav-item active" type="button" data-view="dashboard">Dashboard</button>
-            <button class="nav-item" type="button" data-view="claims">Claims</button>
-            <button class="nav-item" type="button" data-view="payments">Payments</button>
-            <button class="nav-item" type="button" data-view="reports">Reports</button>
-            <button class="nav-item" type="button" data-view="settings">Settings</button>
-          </nav>
-
           <div class="profile-card">
             <div class="avatar" id="userAvatar">A</div>
-            <div>
-              <strong id="userName">User</strong>
-              <small id="userRole">Role</small>
-            </div>
+            <div><strong id="userName">User</strong><small id="userRole">Role</small></div>
           </div>
         </aside>
 
         <main class="main-panel">
           <header class="topbar">
-            <div>
-              <p class="eyebrow">Overview</p>
-              <h2>Royalty claim dashboard</h2>
+            <div class="topbar-title">
+              <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-label="Open menu"><span class="icon" data-icon="menu"></span></button>
+              <div>
+              <p class="eyebrow">Rwanda Intellectual Property Office</p>
+              <h2 id="pageTitle">Overview</h2>
+              </div>
             </div>
-
             <div class="topbar-actions">
-              <button class="secondary-btn" id="exportBtn" type="button">Export</button>
-              <button class="secondary-btn" id="logoutBtn">Logout</button>
-              <button class="primary-btn" id="newClaimBtn">+ New claim</button>
+              <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme"></button>
+              <div class="bell" id="bellMount"></div>
+              <button class="search-trigger" type="button" id="searchTrigger"><span class="icon" data-icon="search"></span><span>Search the registry</span><kbd>Ctrl K</kbd></button>
+              <a class="icon-btn" href="/public/" target="_blank" rel="noopener" aria-label="Open the public dashboard" title="Public dashboard"><span class="icon" data-icon="public"></span></a>
+              <button class="icon-btn" id="logoutBtn" type="button" aria-label="Log out" title="Log out"><span class="icon" data-icon="logout"></span></button>
             </div>
           </header>
 
-          <section id="dashboardView" class="view-section">
-            <section class="hero-strip">
-              <div class="hero-copy">
-                <p class="eyebrow">Platform health</p>
-                <h3>Everything is moving smoothly across your royalty pipeline.</h3>
-              </div>
-              <div class="hero-badge">
-                <span class="dot"></span>
-                <strong>Operational</strong>
-              </div>
-            </section>
+          <div id="auditorBanner" class="notice hidden">You are signed in as an <strong>auditor</strong>: you can see everything but cannot change anything.</div>
 
-            <section class="stats-grid">
-              <article class="stat-card accent">
-                <span>Total claims</span>
-                <strong id="totalClaims">0</strong>
-                <small>Across all users</small>
-              </article>
-              <article class="stat-card gold">
-                <span>Pending</span>
-                <strong id="pendingClaims">0</strong>
-                <small>Awaiting review</small>
-              </article>
-              <article class="stat-card green">
-                <span>Approved</span>
-                <strong id="approvedClaims">0</strong>
-                <small>Paid or processed</small>
-              </article>
-              <article class="stat-card red">
-                <span>Rejected</span>
-                <strong id="rejectedClaims">0</strong>
-                <small>Needs resubmission</small>
-              </article>
-            </section>
-
-            <section class="content-card activity-panel">
-              <div class="toolbar">
-                <div>
-                  <h3>Latest activity</h3>
-                </div>
-                <span class="status-tag">Live</span>
-              </div>
-              <div id="activityFeed" class="activity-feed"></div>
-            </section>
-
+          <!-- Overview -->
+          <section id="view-overview" class="view-section">
             <section class="content-card">
               <div class="toolbar">
-                <div>
-                  <h3>Recent claims</h3>
+                <div><h3>Where the music money went</h3><p class="muted">All licence fees collected so far, and what happened to them. The same figures are published on the public dashboard.</p></div>
+                <span class="muted small" id="ovFeeRate"></span>
+              </div>
+              <div id="ovFlow"></div>
+            </section>
+
+            <div class="grid-3-1">
+              <section class="content-card">
+                <div class="toolbar"><div><h3>Last 12 months</h3><p class="muted">Licence fees collected and royalties paid out, by month.</p></div></div>
+                <div id="ovTrend"></div>
+              </section>
+              <section class="content-card">
+                <div class="toolbar">
+                  <div class="live-head"><span class="live-dot" aria-hidden="true"></span><h3>Live airplay</h3></div>
+                  <span class="muted small">Updates every 5 seconds</span>
                 </div>
-                <div class="filter-controls">
-                  <label for="searchInput" class="sr-only">Search claims</label>
-                  <input id="searchInput" type="search" placeholder="Search claims" aria-label="Search claims" />
+                <ul class="live-feed" id="ovLive" aria-live="polite"></ul>
+              </section>
+            </div>
 
-                  <label for="statusFilter" class="sr-only">Filter claims by status</label>
-                  <select id="statusFilter" aria-label="Filter claims by status">
-                    <option value="all">All status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
+            <div class="grid-2">
+              <section class="content-card">
+                <div class="toolbar"><h3>Work queue</h3></div>
+                <div class="analytics-grid" id="ovQueue"></div>
+                <h4 class="sub-heading">Plays this month by source</h4>
+                <div id="ovSources"></div>
+              </section>
+              <section class="content-card">
+                <div class="toolbar"><h3>Latest audit entries</h3><span class="status-tag">Hash-chained</span></div>
+                <div id="ovAudit" class="activity-feed"></div>
+              </section>
+            </div>
+          </section>
 
-                  <label for="sortFilter" class="sr-only">Sort claims</label>
-                  <select id="sortFilter" aria-label="Sort claims">
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                    <option value="highest">Highest amount</option>
-                    <option value="lowest">Lowest amount</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="analytics-grid">
-                <article class="mini-stat">
-                  <span>Average claim</span>
-                  <strong id="avgClaimValue">$0.00</strong>
-                </article>
-                <article class="mini-stat">
-                  <span>Largest claim</span>
-                  <strong id="topClaimValue">$0.00</strong>
-                </article>
-                <article class="mini-stat">
-                  <span>Approval rate</span>
-                  <strong id="approvalRateValue">0%</strong>
-                </article>
-              </div>
-
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Claim ID</th>
-                      <th>Artist</th>
-                      <th>Track</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Submitted</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="claimsTableBody"></tbody>
-                </table>
-              </div>
+          <!-- Licences -->
+          <section id="view-licences" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><div><h3>Licence applications &amp; invoices</h3><p class="muted">Approving an application issues the invoice and a clearance code. The code becomes valid when the fee is paid.</p></div></div>
+              <div id="licencesTable"></div>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>Registered licensees</h3></div>
+              <div id="licenseesTable"></div>
             </section>
           </section>
 
-          <section id="claimsView" class="view-section hidden">
-            <div class="detail-panel">
-              <div class="section-header">
-                <div>
-                  <p class="eyebrow">Claims</p>
-                  <h3>Claim management</h3>
-                </div>
-                <button class="primary-btn" type="button" id="newClaimBtnSecondary">+ New claim</button>
+          <!-- Tariffs -->
+          <section id="view-tariffs" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar">
+                <div><h3>Tariffs</h3><p class="muted">Demo values — replace them with the figures in the Ministerial Order on royalties (2026).</p></div>
+                <button class="primary-btn admin-only" type="button" id="newTariffBtn">+ New tariff</button>
               </div>
-              <div class="mini-dashboard">
-                <div class="mini-card">
-                  <span>Open cases</span>
-                  <strong id="openCasesValue">0</strong>
-                </div>
-                <div class="mini-card">
-                  <span>Reviewed this week</span>
-                  <strong id="reviewedWeekValue">0</strong>
-                </div>
-                <div class="mini-card">
-                  <span>Value under review</span>
-                  <strong id="reviewValueTotal">$0.00</strong>
-                </div>
-              </div>
-            </div>
+              <div id="tariffsTable"></div>
+            </section>
           </section>
 
-          <section id="paymentsView" class="view-section hidden">
-            <div class="detail-panel">
-              <div class="section-header">
-                <div>
-                  <p class="eyebrow">Payments</p>
-                  <h3>Settlement pipeline</h3>
+          <!-- Usage & monitoring -->
+          <section id="view-usage" class="view-section hidden">
+            <section class="content-card admin-only">
+              <div class="toolbar"><div><h3>Simulate radio airplay (demo)</h3><p class="muted">Takes a few seconds of a registered song's fingerprint, adds radio noise, and sends it through the real fingerprint-matching code. Real monitors use the Open API.</p></div></div>
+              <form id="simulateForm" class="inline-form">
+                <label>Station <select name="licenseeId" id="simulateStation" required></select></label>
+                <label>Plays <input type="number" name="count" min="1" max="20" value="3" /></label>
+                <button class="primary-btn" type="submit">Simulate airplay</button>
+              </form>
+            </section>
+            <section class="content-card">
+              <div class="toolbar">
+                <h3>Usage events</h3>
+                <div class="filter-controls">
+                  <input type="month" id="usagePeriod" aria-label="Period" />
+                  <select id="usageStatus" aria-label="Status">
+                    <option value="">All</option><option value="matched">Matched</option><option value="unmatched">Unmatched</option>
+                  </select>
                 </div>
               </div>
-              <div class="info-stack">
-                <article class="info-card">
-                  <h4>Scheduled payouts</h4>
-                  <p>$18,400.00 this cycle across 3 approved claims.</p>
-                </article>
-                <article class="info-card">
-                  <h4>Outstanding approvals</h4>
-                  <p>2 claims are ready for final review and payment release.</p>
-                </article>
-              </div>
-            </div>
+              <div id="usageTable"></div>
+            </section>
           </section>
 
-          <section id="reportsView" class="view-section hidden">
-            <div class="detail-panel">
-              <div class="section-header">
-                <div>
-                  <p class="eyebrow">Reports</p>
-                  <h3>Royalty performance</h3>
-                </div>
+          <!-- Compliance -->
+          <section id="view-compliance" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar">
+                <div><h3>Licence compliance</h3><p class="muted">Music users who used music without a paid licence, or who have unpaid invoices (flowchart, Figure 7).</p></div>
+                <input type="month" id="compliancePeriod" aria-label="Period" />
               </div>
-              <div class="info-stack">
-                <article class="info-card">
-                  <h4>Approval trend</h4>
-                  <p>Claim approval rate remains stable at 32% with reduced processing delays.</p>
-                </article>
-                <article class="info-card">
-                  <h4>Artist distribution</h4>
-                  <p>Top performers are concentrated in streaming and sync-based royalty claims.</p>
-                </article>
-              </div>
-            </div>
+              <div id="complianceTable"></div>
+            </section>
           </section>
 
-          <section id="settingsView" class="view-section hidden">
-            <div class="detail-panel">
-              <div class="section-header">
-                <div>
-                  <p class="eyebrow">Settings</p>
-                  <h3>Portal preferences</h3>
-                </div>
+          <!-- Distribution runs -->
+          <section id="view-runs" class="view-section hidden">
+            <section class="content-card admin-only">
+              <div class="toolbar"><div><h3>Calculate a distribution run</h3><p class="muted" id="runFeeNote">Pool = licence payments received in the month. Admin fee is capped at 30%.</p></div></div>
+              <form id="runForm" class="inline-form">
+                <label>Period <input type="month" name="period" id="runPeriod" required /></label>
+                <button class="primary-btn" type="submit">Calculate draft run</button>
+              </form>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>Distribution runs</h3></div>
+              <div id="runsTable"></div>
+            </section>
+          </section>
+
+          <!-- Claims & disputes -->
+          <section id="view-claims" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><div><h3>Claims on unmatched usage</h3><p class="muted">Rights holders claim plays that the system could not match. Approved claims are paid in the next run.</p></div></div>
+              <div id="claimsTable"></div>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>Disputes</h3></div>
+              <div id="disputesTable"></div>
+            </section>
+          </section>
+
+          <!-- Catalogue -->
+          <section id="view-catalogue" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><h3>Registered works</h3></div>
+              <div id="worksTable"></div>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>Rights holders</h3></div>
+              <div id="holdersTable"></div>
+            </section>
+          </section>
+
+          <!-- Audit log -->
+          <section id="view-audit" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar">
+                <div><h3>Audit log</h3><p class="muted">Append-only. Each entry contains a hash of the previous one, so any edit or deletion breaks the chain.</p></div>
+                <button class="secondary-btn" type="button" id="verifyAuditBtn">Verify chain</button>
               </div>
-              <div class="info-stack">
-                <article class="info-card">
-                  <h4>Review workflow</h4>
-                  <p>Notifications, thresholds, and approval rules are configured for operational review.</p>
-                </article>
-                <article class="info-card">
-                  <h4>Security</h4>
-                  <p>Session timeout and password policies are active for all portal staff.</p>
-                </article>
+              <div id="auditVerify"></div>
+              <div id="auditTable"></div>
+            </section>
+          </section>
+
+          <!-- Settings -->
+          <section id="view-settings" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><div><h3>Administration fee</h3><p class="muted">Deducted from each run before distribution and published on the public dashboard. Maximum 30% (the proposed 70/30 rule).</p></div></div>
+              <form id="feeForm" class="inline-form">
+                <label>Fee rate (%) <input type="number" name="rate" id="feeRate" min="0" max="30" step="0.5" required /></label>
+                <button class="primary-btn admin-only" type="submit">Save</button>
+              </form>
+            </section>
+            <section class="content-card">
+              <div class="toolbar">
+                <div><h3>API keys</h3><p class="muted">Monitor keys let a broadcast-monitoring service report fingerprints for any station. Licensees create their own keys in their portal. See the <a href="/docs/" target="_blank" rel="noopener">Open API docs</a>.</p></div>
+                <button class="primary-btn admin-only" type="button" id="newKeyBtn">+ Monitor key</button>
               </div>
-            </div>
+              <div id="newKeyBox"></div>
+              <div id="keysTable"></div>
+            </section>
           </section>
         </main>
       </div>
     </div>
 
-    <div class="modal hidden" id="detailModal">
-      <div class="modal-dialog detail-dialog">
-        <div class="modal-header">
-          <h3>Claim details</h3>
-          <button class="close-btn" id="closeDetailBtn">×</button>
-        </div>
-
-        <div id="claimDetailContent" class="claim-detail"></div>
-      </div>
-    </div>
-
-    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-
-    <div class="modal hidden" id="claimModal">
+    <!-- ============================ MODALS ============================ -->
+    <div class="modal hidden" id="tariffModal">
       <div class="modal-dialog">
-        <div class="modal-header">
-          <h3>Create claim</h3>
-          <button class="close-btn" id="closeModalBtn">×</button>
-        </div>
-
-        <form id="claimForm">
+        <div class="modal-header"><h3>New tariff (draft)</h3><button class="close-btn" type="button" data-close="tariffModal">×</button></div>
+        <form id="tariffForm">
           <div class="form-grid">
-            <label>
-              Artist name
-              <input type="text" name="artist" placeholder="e.g. Munezero Hubert" required />
+            <label>Usage type
+              <select name="usageType" required>
+                <option value="radio">Radio</option><option value="tv">Television</option><option value="event">Concerts &amp; events</option>
+                <option value="advertiser">Advertisements</option><option value="venue">Public venues</option><option value="telecom">Telecom</option><option value="digital">Digital / streaming</option>
+              </select>
             </label>
-            <label>
-              Track title
-              <input type="text" name="track" placeholder="e.g. Royalty Song" required />
+            <label>Basis
+              <select name="basis" required>
+                <option value="flat_annual">Flat amount per year</option><option value="percent_gross">% of gross receipts</option>
+                <option value="per_ad">Per advert</option><option value="per_event">Per event</option>
+              </select>
             </label>
-            <label>
-              Amount (USD)
-              <input type="number" name="amount" placeholder="2500" min="0" step="0.01" required />
-            </label>
-            <label>
-              Submission date
-              <input type="date" name="submittedDate" required />
-            </label>
+            <label>Rate (Rwf, or % for "% of gross") <input type="number" name="rate" min="0" step="any" required /></label>
+            <label>Name <input type="text" name="name" placeholder="e.g. Community radio – annual" required /></label>
           </div>
-
-          <label>
-            Claim notes
-            <textarea name="notes" rows="4" placeholder="Explain the claim details, dates, and supporting information..."></textarea>
-          </label>
-
-          <label>
-            Supporting document (optional)
-            <input type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" />
-          </label>
-
-          <div class="form-actions">
-            <button type="button" class="secondary-btn" id="cancelModalBtn">Cancel</button>
-            <button type="submit" class="primary-btn">Save claim</button>
-          </div>
+          <label>Legal reference <input type="text" name="legalReference" placeholder="Ministerial Order N° … of …, Article …" /></label>
+          <div class="form-actions"><button type="button" class="secondary-btn" data-close="tariffModal">Cancel</button><button type="submit" class="primary-btn">Save draft</button></div>
         </form>
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <div class="modal hidden" id="runModal">
+      <div class="modal-dialog detail-dialog">
+        <div class="modal-header"><h3 id="runModalTitle">Distribution run</h3><button class="close-btn" type="button" data-close="runModal">×</button></div>
+        <div id="runModalBody"></div>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="disputeModal">
+      <div class="modal-dialog">
+        <div class="modal-header"><h3>Resolve dispute</h3><button class="close-btn" type="button" data-close="disputeModal">×</button></div>
+        <form id="disputeForm">
+          <input type="hidden" name="id" />
+          <p id="disputeReason" class="muted"></p>
+          <label>Decision
+            <select name="status"><option value="resolved">Resolved (upheld / corrected)</option><option value="rejected">Rejected</option></select>
+          </label>
+          <label>Resolution <textarea name="resolution" rows="4" required placeholder="Explain the decision and any correction made…"></textarea></label>
+          <div class="form-actions"><button type="button" class="secondary-btn" data-close="disputeModal">Cancel</button><button type="submit" class="primary-btn">Save decision</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
   </body>
 </html>

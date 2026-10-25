@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Royalty Hub | Public Transparency Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/shared/icons.js"></script>
+    <script src="/shared/ui.js"></script>
+    <script src="/shared/widgets.js"></script>
+  </head>
+  <body>
+    <div class="public-shell">
+      <div class="public-band" aria-hidden="true"></div>
+      <header class="public-header">
+        <div class="brand-wrap">
+          <div class="brand-icon">R</div>
+          <div><p class="eyebrow">Public transparency dashboard</p><h1>Royalty Hub</h1></div>
+        </div>
+        <nav class="public-links" aria-label="Portals">
+          <a href="/artist/">For artists</a><a href="/licensee/">For music users</a><a href="/docs/">Open API</a><a href="/">Government console</a>
+          <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme"></button>
+        </nav>
+      </header>
+
+      <section class="public-hero">
+        <h2>Where Rwanda's music licence money goes</h2>
+        <p class="lead">Every franc collected from radio, TV, concerts, adverts and venues, and how much of it reached the people who wrote and performed the songs. Published for artists, music users, Parliament and the public. Only totals are shown, never personal data.</p>
+      </section>
+
+      <section class="content-card"><div id="pFlow"></div></section>
+
+      <div class="grid-3-1">
+        <section class="content-card">
+          <div class="toolbar"><div><h3>Collected and paid out, by month</h3><p class="muted">The last 12 months.</p></div></div>
+          <div id="pMonthly"></div>
+        </section>
+        <section class="content-card">
+          <div class="toolbar"><h3>Who pays for music</h3></div>
+          <div id="pByCategory"></div>
+          <h4 class="sub-heading">The registry today</h4>
+          <div class="analytics-grid" id="pRegistry"></div>
+        </section>
+      </div>
+
+      <section class="content-card">
+        <div class="toolbar"><div><h3>Distribution runs</h3><p class="muted">Each run shares one month's collections among the songs that were played that month.</p></div></div>
+        <div id="pRuns"></div>
+      </section>
+
+      <div class="grid-2">
+        <section class="content-card">
+          <div class="toolbar"><div><h3>Check a clearance code</h3><p class="muted">Broadcasters check an advert's code before airing it. Permit offices check an event's code before issuing a permit.</p></div></div>
+          <form id="clearanceForm" class="inline-form">
+            <label>Clearance code <input type="text" name="code" placeholder="CLR-XXXXXXXX" required /></label>
+            <button class="primary-btn" type="submit">Check code</button>
+          </form>
+          <div id="clearanceResult" class="spaced"></div>
+        </section>
+        <section class="content-card">
+          <div class="toolbar"><div><h3>Unclaimed plays</h3><p class="muted">Played, but not matched to any registered song. Is one yours? <a href="/artist/">Register it and claim it.</a></p></div></div>
+          <div id="pUnclaimed"></div>
+        </section>
+      </div>
+    </div>
+    <script src="/public/public.js"></script>
+  </body>
+</html>
