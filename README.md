@@ -1,33 +1,48 @@
-# Royalty Hub — National Music Royalty Tracking Platform (prototype)
+# Royalty Hub — National Music Royalty Tracking Platform
 
-Royalty Hub is the software prototype for the capstone proposal
+Royalty Hub is the software product of the capstone project
 **"Investigating Digital Infrastructure for Bridging Fragmented Distribution Networks in Africa: A Case Study of Music Royalty Management"**
-(MUNEZERO Hubert, BSc. Software Engineering, African Leadership University).
+by **MUNEZERO Hubert** (BSc Software Engineering, African Leadership University; supervisor: Emmanuel Annor).
 
-It implements the system described in Chapter Three of the document: a platform
-**administered by the Government of Rwanda** (Rwanda Intellectual Property Office, within RDB)
-that tracks every use of music — radio, TV, concerts, adverts, public venues, telecoms and
-streaming — collects licence fees, and pays royalties transparently to every songwriter,
-composer, publisher and performer according to their confirmed splits.
+It is a platform **administered by the Government of Rwanda** (Rwanda Intellectual Property Office, RIPO) that
+records every public use of music — radio, TV, concerts, adverts, hotels and venues, telecoms and streaming —
+collects licence fees, and pays every songwriter, composer, publisher and performer their confirmed share,
+with a public dashboard and a tamper-evident audit log.
 
-> **Prototype notice.** Payments and payouts are **simulated** (no money moves).
-> Tariff amounts are **demo values** until the Ministerial Order on royalties (2026) figures are entered.
-> Connections to RURA, RRA and Irembo are designed but simulated. All organisation names in the demo data are fictional.
+| | Link |
+|---|---|
+| 🎬 **Walkthrough video** (narrated, ~12 min) | **ADD LINK HERE** (YouTube unlisted or Google Drive, "anyone with the link") |
+| 📄 **Technical report** (PDF, 5 pages) | **ADD LINK HERE** — also in this repository: [`docs/Royalty Hub - Technical Report.pdf`](docs/Royalty%20Hub%20-%20Technical%20Report.pdf) |
+| 📊 Test results | [`tests/performance/results/`](tests/performance/results/) · [`tests/compatibility/results/`](tests/compatibility/results/) |
+
+> **Prototype notice.** Payments and payouts run in **simulated** mode (no money moves); the payment-gateway
+> classes are ready for live providers. Tariff amounts are **demo values** until the 2026 Ministerial Order
+> figures are entered. Links to RURA, RRA and Irembo are designed but not connected. Demo organisations are fictional.
 
 ---
 
-## 1. Quick start (Windows, macOS or Linux)
+## 1. Technical requirements
 
-You need **Node.js 22** or newer (Node 20 also works if `better-sqlite3` installs).
+| Item | Version / detail |
+|---|---|
+| Runtime | **Node.js 22.5 or newer** (tested on v22.23) — npm 10+ |
+| Operating systems | Windows 10/11, macOS 13+, Linux (tested on Linux 6.x) |
+| Backend | Express 5, jsonwebtoken 9, bcryptjs 3, helmet 8, express-rate-limit 8, multer 2, cors 2 |
+| Database | SQLite (default; `better-sqlite3` if it compiles, otherwise Node's built-in `node:sqlite`) or PostgreSQL 14+ (`pg`) |
+| Frontend | Plain HTML, CSS and JavaScript (no framework, no build step); works in current Chrome, Edge, Firefox, Safari |
+| Testing | `node:test` (built in), ESLint 9, autocannon 8 + pidusage 4 (load), Playwright (browser checks, optional) |
+| Optional | Docker 24+ and Docker Compose; Chromaprint `fpcalc` for real audio fingerprints |
+| Hardware | Any machine that runs Node 22; 2 CPU cores and 1 GB free RAM are plenty for the demo |
+
+## 2. Installation and running
 
 ```bash
-cd "Royalties claim"
-copy .env.example .env        # Windows   (use: cp .env.example .env on macOS/Linux)
+git clone https://github.com/Hubert2c/Royalties-claim.git
+cd Royalties-claim
+cp .env.example .env        # Windows: copy .env.example .env
 npm install
 npm start
 ```
-
-Then open:
 
 | Portal | URL | Demo login |
 |---|---|---|
@@ -38,167 +53,118 @@ Then open:
 | Public transparency dashboard | http://localhost:3001/public | no login |
 | Open API documentation | http://localhost:3001/docs | no login |
 
-The database (`data/royalty_hub.db`) is created with demo data on the first start.
-To start again from fresh demo data: `npm run reset-db`.
+The database (`data/royalty_hub.db`) is created with demo data on first start. Start again from fresh data with `npm run reset-db`.
+The app also opens from other devices on the same network (e.g. `http://192.168.1.20:3001` on a phone).
 
-> **Database driver.** The app uses `better-sqlite3` when it installs. If it cannot be
-> compiled on your machine, `npm install` still succeeds (it is optional) and the app
-> automatically uses Node's built-in `node:sqlite` (Node 22.5+) instead.
+**PostgreSQL:** set `DATABASE_URL` in `.env` (see `.env.postgres.example`). **Docker:** `npm run docker:up` (app + PostgreSQL).
+**Vercel:** set `DATABASE_URL`, `JWT_SECRET`, `DATA_ENCRYPTION_KEY`, `NODE_ENV=production`, `ALLOWED_ORIGINS`, then `npm run vercel:deploy`.
 
-Run the automated tests:
+## 3. Testing
 
-```bash
-npm test
-```
-
----
-
-## 2. What's in the interface
-
-**Design.** The look is based on *Imigongo*, the geometric black, white and earth-red art of Rwanda's
-eastern province: one patterned band on the sidebar and login screens, with quiet layouts so the
-numbers lead. Headings use Bricolage Grotesque and text uses IBM Plex Sans (from Google Fonts; the
-app falls back to system fonts offline). Works on phones (the sidebar becomes a slide-in menu),
-supports keyboard navigation, and respects "reduce motion".
-
-**Features**
-
-| Feature | Where |
-|---|---|
-| **Money flow bar** — collected → paid to creators / held / admin fee / not yet distributed | Console overview, public dashboard |
-| **12-month charts** of fees collected and royalties paid | Console overview, public dashboard |
-| **Live airplay feed**, refreshed every 5 seconds | Console overview |
-| **Quick search** with **Ctrl + K** (works, ISRCs, licensees, runs, clearance codes, pages) | Console |
-| **Notification bell** — split requests, licence approvals, payouts, claim and dispute decisions | All portals |
-| **Earnings by month**, where songs are played, top music users, recently detected plays | Rights-holder overview |
-| **Earnings estimator** — plays per month × value of one play in the latest run × your share | Rights-holder overview |
-| **Printable royalty statement** | Rights-holder → Statements |
-| **Printable licence certificate** with the clearance code | Licensee → Licences (paid) |
-| **Dark mode** (follows your system, or use the moon/sun button) | All pages |
-
-The demo data includes five months of history (licence payments, plays and paid distribution runs,
-calculated by the real royalty engine) so the charts have something to show.
-
-## 3. A 10-minute demo script (for the presentation)
-
-1. **Licensee portal** (radio@royaltyhub.com) → *Apply for a licence* → choose "Advertisement (sync) – per advert", 4 adverts → submit.
-2. **Government console** (admin) → *Licences* → *Approve & invoice*. A clearance code is issued.
-3. **Licensee portal** → *Pay* (simulated mobile money). The clearance code is now valid —
-   check it on the **Public dashboard** → *Check a clearance code*.
-4. **Government console** → *Usage & monitoring* → *Simulate airplay*. A few seconds of a registered
-   song's fingerprint, with added radio noise, go through the real matching code.
-5. **Licensee portal** → *Report usage* → upload a CSV play log (there is a *Download a sample CSV* link).
-   Unknown songs appear on the public **Unclaimed plays** list.
-6. **Rights-holder portal** (artist@royaltyhub.com) → *Register a work* with a 70/30 split with Aline Kay.
-   Its status is *pending splits* — royalties for it will be **held**, not lost.
-7. Log in as **cowriter@royaltyhub.com** → *Confirm splits*.
-8. **Rights-holder portal** → *Unclaimed plays* → *This is mine* → the admin approves it under *Claims & disputes*.
-9. **Government console** → *Distributions* → *Calculate draft run* → *Approve run* → *Pay rights holders*.
-10. **Rights-holder portal** → *Statements*: every line shows the station, time, detection method,
-    play value and share. **Public dashboard** shows collected / paid / admin fee / held.
-11. **Government console** → *Audit log* → *Verify chain*. Log in as the **auditor** to show read-only access.
-12. Show the extras: press **Ctrl + K** and search an ISRC, open the **bell**, watch the **live airplay** feed, try the artist **earnings estimator**, print a **statement** and a **licence certificate**, and switch to **dark mode**.
-
----
-
-## 4. How the code matches the document
-
-| Document (Chapter 3) | Where in the code |
-|---|---|
-| ERD (Figure 4): RightsHolder, MusicalWork, Recording, Split, Licensee, Licence, Tariff, UsageEvent, Payment, DistributionRun, RoyaltyLine, AuditLog | `database.js` (schema + demo data) |
-| Use cases (Figure 6) — rights holder, licensee, government administrator, monitoring system | `routes/rightsholder.js`, `routes/licensee.js`, `routes/admin.js`, `routes/open.js` |
-| Flowchart (Figure 7) — usage → match → licence paid? → pool − capped fee → splits → approval → payout | `lib/usage.js`, `routes/admin.js` (compliance), `lib/royalty-engine.js` |
-| Sequence diagram (Figure 8) — radio airplay to artist payout | `lib/fingerprint.js` → `lib/usage.js` → `lib/royalty-engine.js` → `routes/admin.js` (approve, pay) |
-| Table 7 — collection methods per revenue stream | Tariffs (`lib/tariffs.js`), licences + clearance codes, play logs / set lists / cue sheets / DDEX, fingerprinting |
-| 70/30 rule — admin fee capped at 30% and published | `MAX_ADMIN_FEE_RATE` in `lib/royalty-engine.js`, Settings view, public dashboard |
-| ONDC lesson (2.2.6) — government owns registry & rules, others plug in via open APIs | `routes/open.js`, API keys, `/docs` |
-
-### Functional requirements
-
-| FR | Requirement | Implemented in |
+| Command | What it does | Result (latest run) |
 |---|---|---|
-| 1 | Register, add works, recordings, ISWC/ISRC/IPI | Rights-holder portal → *Register a work*; `POST /api/rightsholder/works` |
-| 2 | Declare and confirm splits; reject if not 100% | `validateSplits()`; *Confirm splits* view |
-| 3 | Licence applications and invoices from approved tariffs | Licensee portal; `lib/tariffs.js`; admin *Licences* |
-| 4 | Ingest fingerprints, play logs, set lists, cue sheets, CSV/DDEX | `lib/usage.js`, `lib/csv.js`, `POST /api/licensee/usage(/csv)`, Open API |
-| 5 | Identify broadcast songs by fingerprint, store station/time/confidence | `lib/fingerprint.js` (Chromaprint-style bit-error-rate matching) |
-| 6 | Calculate royalties per period after the published admin fee | `lib/royalty-engine.js` (whole-franc, largest-remainder allocation) |
-| 7 | Administrator approves tariffs, licences and runs before payment | Government console |
-| 8 | Itemised statements and payouts (mobile money / bank) | *Statements* view (+ CSV); *Pay rights holders* (simulated) |
-| 9 | Public unclaimed list; rights holders can claim | `/api/public/unclaimed`; *Unclaimed plays*; admin *Claims* |
-| 10 | Disputes raised and resolved | `routes/disputes.js`; admin *Claims & disputes* |
-| 11 | Audit log of every action | `lib/audit.js` (append-only, SHA-256 hash chain, *Verify chain*) |
-| 12 | Public dashboard | `/public` |
-| 13 | Open APIs for third-party systems | `/api/open/v1/*`, `tools/monitor-report.js`, `/docs` |
+| `npm test` | 29 unit + 18 integration tests (real server, throw-away database, 40+ wrong inputs) | **47 / 47 pass in ≈ 3 s** |
+| `npm run lint` | ESLint code-quality checks | **0 problems** |
+| `npm run test:load` | Load test: 10 / 50 / 100 users on 4 endpoints, 100,000-play database, rate-limit flood | [`load-test.md`](tests/performance/results/load-test.md) |
+| `npm run test:bench` | Algorithm benchmark: fingerprint scaling and precision, money split, royalty run, audit chain | [`algorithm-benchmark.md`](tests/performance/results/algorithm-benchmark.md) |
+| `npm run test:browsers` | 5 screen sizes × 4 portals + high/mid/low-end hardware profiles (needs `npm i -D playwright && npx playwright install`) | [`browser-check.md`](tests/compatibility/results/browser-check.md) |
 
-### Non-functional requirements
+Run Firefox and Safari (WebKit) too: `BROWSERS=chromium,firefox,webkit npm run test:browsers`.
 
-- **Security & privacy:** JWT login, four roles (admin, auditor, rightsholder, licensee), bcrypt passwords,
-  AES-256-GCM encryption of payout numbers (`lib/crypto-box.js`), API keys stored only as hashes,
-  Helmet security headers, rate limiting, and only the public folders are served (the original
-  version served the whole project folder, including `.env` and the database).
-- **Transparency & auditability:** every royalty line links to the exact usage event; hash-chained audit log.
-- **Accuracy:** integer Rwandan francs; allocations always add up exactly (tested).
-- **Interoperability:** ISRC / ISWC / IPI identifiers, CSV and DDEX-style JSON usage reports, open API.
+**What testing changed** (before → after, 50 users at once): usage reports 39 → 554 requests/s (SQLite WAL),
+fingerprint matching 183 → 1,268 requests/s (parsed-fingerprint cache), dashboards protected with 20 indexes and a
+3-second cache, audit writes queued, and logging in from a phone via the computer's IP address fixed (CORS same-origin rule).
 
----
-
-## 5. Using real audio fingerprints (optional)
-
-The demo data uses synthetic fingerprints. To use real ones, install
-[Chromaprint](https://acoustid.org/chromaprint) (`fpcalc`):
-
-1. Register a song: run `fpcalc -raw -length 600 song.mp3` and paste the numbers after `FINGERPRINT=`
-   into *Audio fingerprint* when registering the work.
-2. Create an API key (Government console → *Settings & API keys* → *Monitor key*).
-3. Record a clip of the radio stream and report it:
-
-```bash
-set ROYALTY_HUB_API_KEY=rh_live_...        # Windows  (export ... on macOS/Linux)
-node tools/monitor-report.js clip.mp3 LIC-RADIO
-```
-
----
-
-## 6. Project structure
+## 4. Repository structure
 
 ```
-server.js              API + all portal pages (port 3001)
-artist-server.js       rights-holder portal on its own port (8000)
-licensee-server.js     licensee portal on its own port (3002)
-start-all.js           starts all three (npm start)
-database.js            SQLite/Postgres connection, schema (ERD), demo data
-lib/                   core logic: royalty-engine, fingerprint, tariffs, usage, audit, auth, csv, crypto-box,
-                       notify (notifications), periods (monthly charts)
-routes/                API routes per portal (auth, rightsholder, licensee, disputes, notifications, admin, public, open)
-index.html, app.js     Government console
-artist/                Rights-holder portal
-licensee/              Licensee portal
-public/                Public transparency dashboard
-docs/                  Open API documentation page
-shared/                ui.js (helpers), widgets.js (bell, charts, flow bar, search, print, theme),
-                       icons.js, imigongo.svg (pattern), storage-keys.js
-tools/                 monitor-report.js (real fingerprint reporting)
-tests/                 unit.test.js, api.test.js  (npm test)
+server.js                 Express app: security middleware, API routes, static portals, error handler
+artist-server.js          rights-holder portal on its own port (8000)
+licensee-server.js        licensee portal on its own port (3002)
+start-all.js              starts all three (npm start)
+database.js               shared connection, newId(), nowIso(), initializeDatabase()
+db/
+  adapters.js             DatabaseAdapter → SqliteAdapter | PostgresAdapter
+  schema.js               the 18 tables of the ERD + 20 indexes
+  seed.js                 demo data (5 months of history, calculated by the real engine)
+lib/
+  services.js             composition root: builds each service once (dependency injection)
+  errors.js               AppError → ValidationError, AuthenticationError, ForbiddenError, NotFoundError, ConflictError, NotConfiguredError
+  royalties/              RoyaltyEngine (pure calculation), DistributionService (draft → approve → pay)
+  money/                  MoneyAllocator (largest-remainder method)
+  fingerprint/            FingerprintMatcher (bit-error-rate search), DemoFingerprints
+  usage/                  UsageService, MatchStrategies (Strategy pattern), ReportParsers (CSV, JSON)
+  licensing/              LicensingService (apply → approve → pay)
+  tariffs/                TariffRule → FlatAnnualRule | PercentGrossRule | PerUnitRule, TariffRuleFactory
+  payments/               PaymentGateway → MobileMoneyGateway | BankTransferGateway | IremboGateway, factory
+  audit/                  AuditLog (SHA-256 hash chain, queued writes)
+  security/               auth (TokenService, ApiKeyService, middleware), FieldEncryptor (AES-256-GCM)
+  notifications/          NotificationService
+  util/                   format, periods, TtlCache
+routes/
+  auth.js rightsholder.js licensee.js disputes.js notifications.js public.js open.js
+  admin/                  index.js + overview, tariffs, licences, usage, claims, runs, settings, access
+index.html, app.js        Government console
+artist/ licensee/ public/ docs/   other portals and the Open API documentation
+shared/                   ui.js, widgets.js (bell, charts, flow bar, search, print, theme), icons, Imigongo pattern
+tools/monitor-report.js   send real `fpcalc` fingerprints from a radio monitor
+tests/
+  unit/                   core.test.js, oop.test.js
+  integration/            api.test.js (full flow), errors.test.js (wrong inputs)
+  performance/            load-test.js, algorithm-benchmark.js, results/
+  compatibility/          browser-check.js, results/ (+ screenshots)
+docs/                     Open API page + technical report (PDF)
 ```
 
----
+## 5. Design: how the code is organised
 
-## 7. PostgreSQL / Supabase, Docker and Vercel
+- **Layers:** portals → Express API (JWT, 4 roles, CORS, Helmet, rate limit) → thin routes → **service classes** → **domain classes** → **database adapter**.
+- **OOP:** six abstract base classes with subclasses (payment gateways, match strategies, tariff rules, report parsers, database adapters, errors).
+  Factories choose the subclass, so callers never switch on types (polymorphism). Services receive their collaborators
+  in the constructor (dependency injection), which is how tests inject a fake payment gateway.
+- **Algorithms:** fingerprint matching by sliding bit-error rate with a branch-free popcount (linear in catalogue size;
+  100% precision and recall on 600 synthetic test clips — to be re-measured on real broadcasts in the pilot), the largest-remainder method for exact whole-franc shares (O(n log n)), and a SHA-256
+  hash chain for the audit log (O(n) verification).
+- **Data:** money in whole francs (integers); payout numbers encrypted; passwords hashed; API keys stored as hashes;
+  every royalty line points to the exact play that earned it.
 
-**Postgres (no Docker):** `copy .env.postgres.example .env`, set `DATABASE_URL` (local Postgres or Supabase), `npm start`.
-The same schema is created automatically.
+## 6. How the code matches the capstone document
 
-**Docker (optional):** `npm run docker:up` starts the app (ports 3001, 8000, 3002) and a PostgreSQL container.
+| Requirement | Implemented in |
+|---|---|
+| FR1 register works, recordings, ISWC/ISRC/IPI | `routes/rightsholder.js` |
+| FR2 splits must total 100% and be confirmed | `RoyaltyEngine.splitsAreComplete`, Confirm splits view |
+| FR3 licences and tariff invoices | `LicensingService`, `lib/tariffs/TariffRules.js` |
+| FR4 ingest fingerprints, logs, set lists, cue sheets, CSV/DDEX | `UsageService`, `ReportParsers`, `/api/open/v1` |
+| FR5 fingerprint identification with station/time/confidence | `FingerprintMatcher`, `FingerprintMatchStrategy` |
+| FR6 royalties after the published admin fee (≤ 30%) | `RoyaltyEngine`, `MoneyAllocator`, `DistributionService` |
+| FR7 government approval before payment | `routes/admin/*` (auditor is read-only) |
+| FR8 statements and payouts | Statements view, `DistributionService.payRun` → `PaymentGateway` |
+| FR9 public unclaimed list and claims | `/api/public/unclaimed`, `routes/admin/claims.js` |
+| FR10 disputes | `routes/disputes.js` |
+| FR11 audit log | `lib/audit/AuditLog.js` |
+| FR12 public dashboard | `/public` |
+| FR13 open APIs (ONDC approach) | `routes/open.js`, API keys, `/docs` |
 
-**Vercel:** set `DATABASE_URL` (Supabase), `JWT_SECRET`, `DATA_ENCRYPTION_KEY`, `NODE_ENV=production`,
-`ALLOWED_ORIGINS`, then `npm run vercel:deploy`. On Vercel all portals are served from one domain
-(`/`, `/artist`, `/licensee`, `/public`, `/docs`). SQLite does not persist on Vercel — use Postgres.
+## 7. Ten-minute demo script
 
-## 8. Production checklist
+1. **Licensee** (radio) → *Apply for a licence* → "Advertisement (sync) – per advert", 4 adverts.
+2. **Government console** (admin) → *Licences* → *Approve & invoice* → a clearance code is issued.
+3. **Licensee** → *Pay* (simulated mobile money); check the code on the **public dashboard**.
+4. **Console** → *Usage & monitoring* → *Simulate airplay* (real matching code on noisy fingerprints).
+5. **Licensee** → *Report usage* → upload a CSV play log; unknown songs go to the public unclaimed list.
+6. **Rights holder** (artist) → *Register a work* with a 70/30 split; money is held until confirmed.
+7. **cowriter@royaltyhub.com** → *Confirm splits*.
+8. **Artist** → *Unclaimed plays* → *This is mine*; admin approves under *Claims & disputes*.
+9. **Console** → *Distributions* → *Calculate draft run* → *Approve run* → *Pay rights holders*.
+10. **Artist** → *Statements*; **console** → *Audit log* → *Verify chain*; log in as the auditor (read-only).
 
-- Set strong `JWT_SECRET` and `DATA_ENCRYPTION_KEY` values (the app warns if they are missing).
-- Use PostgreSQL and S3-compatible storage for evidence files; back both up daily.
-- Replace simulated payments with the mobile-money / bank / Irembo integrations.
-- Enter the official tariffs and their Official Gazette references.
-- Put the app behind HTTPS and set `ALLOWED_ORIGINS` to the real domains.
+## 8. Using real audio fingerprints (optional)
+
+Install [Chromaprint](https://acoustid.org/chromaprint), register a song with the numbers from `fpcalc -raw -length 600 song.mp3`,
+create a monitor API key (*Settings & API keys*), then `ROYALTY_HUB_API_KEY=rh_live_... node tools/monitor-report.js clip.mp3 LIC-RADIO`.
+
+## 9. Production checklist
+
+Strong `JWT_SECRET` and `DATA_ENCRYPTION_KEY`; PostgreSQL with daily encrypted backups; S3-compatible storage for evidence files;
+`PAYMENTS_MODE=live` only after the provider adapters are connected; official tariffs with Gazette references; HTTPS and `ALLOWED_ORIGINS`.
