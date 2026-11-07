@@ -82,12 +82,41 @@ class PostgresAdapter extends DatabaseAdapter {
   constructor(connectionString) {
     super('postgres');
     const pg = require('pg');
+    this.initializingClient = null;
     // BIGINT (OID 20) comes back as a string by default; our amounts fit in a JS number.
     pg.types.setTypeParser(20, (value) => parseInt(value, 10));
     this.pool = new pg.Pool({
       connectionString,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
+  }
+
+  async withInitializationLock(callback) {
+    const client = await this.pool.connect();
+    const lockKey = 1380467001;
+    let transactionStarted = false;
+    try {
+      await client.query('BEGIN');
+      transactionStarted = true;
+      await client.query('SELECT pg_advisory_xact_lock($1)', [lockKey]);
+      this.initializingClient = client;
+      const result = await callback();
+      await client.query('COMMIT');
+      transactionStarted = false;
+      return result;
+    } catch (error) {
+      if (transactionStarted) {
+        try {
+          await client.query('ROLLBACK');
+        } catch (rollbackError) {
+          throw new AggregateError([error, rollbackError], 'Database initialization and rollback both failed.');
+        }
+      }
+      throw error;
+    } finally {
+      this.initializingClient = null;
+      client.release();
+    }
   }
 
   /** Convert "?" placeholders into "$1, $2, ...". */
@@ -100,7 +129,7 @@ class PostgresAdapter extends DatabaseAdapter {
   prepare(sql) {
     const query = async (args) => {
       const q = PostgresAdapter.toPostgres(sql, args);
-      return this.pool.query(q.sql, q.params);
+      return (this.initializingClient || this.pool).query(q.sql, q.params);
     };
     return {
       async get(...args) { return (await query(args)).rows[0] || null; },
@@ -109,7 +138,7 @@ class PostgresAdapter extends DatabaseAdapter {
     };
   }
 
-  async exec(sql) { await this.pool.query(sql); }
+  async exec(sql) { await (this.initializingClient || this.pool).query(sql); }
 
   close() { return this.pool.end(); }
 }

@@ -27,12 +27,20 @@ function nowIso() {
 
 /** Create the tables (if missing) and load the demo data on the first start. */
 async function initializeDatabase() {
-  // Both SQLite and Postgres accept the whole script at once (no parameters).
-  await db.exec(SCHEMA);
-  if (process.env.SKIP_SEED !== 'true') {
-    const { seedDemoData } = require('./db/seed'); // loaded here to avoid a circular require
-    await seedDemoData({ db, newId, nowIso });
+  const initialize = async () => {
+    // Both SQLite and Postgres accept the whole script at once (no parameters).
+    await db.exec(SCHEMA);
+    if (process.env.SKIP_SEED !== 'true') {
+      const { seedDemoData } = require('./db/seed'); // loaded here to avoid a circular require
+      await seedDemoData({ db, newId, nowIso });
+    }
+  };
+
+  if (typeof db.withInitializationLock === 'function') {
+    await db.withInitializationLock(initialize);
+    return;
   }
+  await initialize();
 }
 
 module.exports = { db, initializeDatabase, newId, nowIso };

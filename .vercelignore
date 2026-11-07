@@ -1,0 +1,10 @@
+.git
+.vercel
+node_modules
+.env*
+dist
+data/*.db*
+uploads/*
+!uploads/.gitkeep
+/cloudflared.exe
+/Royalty Hub - live monitor update/

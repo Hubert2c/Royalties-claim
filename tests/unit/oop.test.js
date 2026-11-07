@@ -28,7 +28,7 @@ const {
 } = require('../../lib/usage/MatchStrategies');
 const { UsageReportParser, CsvUsageParser, JsonUsageParser } = require('../../lib/usage/ReportParsers');
 const { TariffRule, FlatAnnualRule, PercentGrossRule, PerUnitRule, TariffRuleFactory } = require('../../lib/tariffs/TariffRules');
-const { DatabaseAdapter, SqliteAdapter } = require('../../db/adapters');
+const { DatabaseAdapter, SqliteAdapter, PostgresAdapter } = require('../../db/adapters');
 const { SCHEMA } = require('../../db/schema');
 const { AuditLog } = require('../../lib/audit/AuditLog');
 const { UsageService } = require('../../lib/usage/UsageService');
@@ -224,6 +224,71 @@ test('the SQLite adapter implements the shared database interface', async () => 
   await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('k', 'v');
   assert.equal((await db.prepare('SELECT value FROM settings WHERE key = ?').get('k')).value, 'v');
   assert.equal(await db.prepare('SELECT value FROM settings WHERE key = ?').get('missing'), null);
+});
+
+test('Postgres initialization uses an advisory lock and its locked connection', async () => {
+  let locked = false;
+  const waiters = [];
+  let activeInitializers = 0;
+  let maxActiveInitializers = 0;
+  const clients = [];
+
+  const acquireLock = async () => {
+    if (!locked) {
+      locked = true;
+      return;
+    }
+    await new Promise((resolve) => waiters.push(resolve));
+  };
+  const releaseLock = () => {
+    const next = waiters.shift();
+    if (next) next();
+    else locked = false;
+  };
+  const makeAdapter = () => {
+    const adapter = Object.create(PostgresAdapter.prototype);
+    adapter.initializingClient = null;
+    const client = {
+      queries: [],
+      async query(sql, params) {
+        this.queries.push([sql, params]);
+        if (sql === 'SELECT pg_advisory_xact_lock($1)') await acquireLock();
+        if (sql === 'COMMIT' || sql === 'ROLLBACK') releaseLock();
+        return { rows: [{ value: 'ready' }], rowCount: 1 };
+      },
+      release() {}
+    };
+    clients.push(client);
+    adapter.pool = {
+      async connect() { return client; },
+      async query() { throw new Error('Initialization queries must use the locked client.'); }
+    };
+    return adapter;
+  };
+
+  const initialize = async (adapter) => adapter.withInitializationLock(async () => {
+    activeInitializers += 1;
+    maxActiveInitializers = Math.max(maxActiveInitializers, activeInitializers);
+    try {
+      await adapter.exec('CREATE TABLE IF NOT EXISTS users (id TEXT)');
+      assert.equal((await adapter.prepare('SELECT ?').get('ready')).value, 'ready');
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    } finally {
+      activeInitializers -= 1;
+    }
+  });
+
+  const adapters = [makeAdapter(), makeAdapter()];
+  await Promise.all(adapters.map(initialize));
+  assert.equal(maxActiveInitializers, 1);
+  assert.ok(clients.every((client) => client.queries[0][0] === 'BEGIN'));
+  assert.ok(clients.every((client) => client.queries.at(-1)[0] === 'COMMIT'));
+  assert.ok(clients.every((client) => client.queries.some(([sql]) => sql === 'CREATE TABLE IF NOT EXISTS users (id TEXT)')));
+  assert.ok(adapters.every((adapter) => adapter.initializingClient === null));
+  await assert.rejects(adapters[0].withInitializationLock(async () => {
+    throw new Error('schema failed');
+  }), /schema failed/);
+  assert.equal(clients[0].queries.at(-1)[0], 'ROLLBACK');
 });
 
 test('audit log: a valid chain verifies, a deleted entry is detected', async () => {

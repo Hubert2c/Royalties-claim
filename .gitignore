@@ -6,3 +6,6 @@ data/*.db-*
 uploads/*
 !uploads/.gitkeep
 dist/
+.vercel
+
+.env*

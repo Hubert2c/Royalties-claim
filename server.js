@@ -37,6 +37,7 @@ const { errorHandler } = require('./lib/errors');
 if (process.env.VERCEL && !process.env.UPLOAD_DIR) process.env.UPLOAD_DIR = '/tmp/royalty-hub-uploads';
 
 const app = express();
+if (process.env.VERCEL) app.set('trust proxy', 1);
 const isProduction = process.env.NODE_ENV === 'production';
 const PORT = Number(process.env.PORT) || 3001;
 const uploadDir = path.resolve(process.env.UPLOAD_DIR || path.join(__dirname, 'uploads'));
