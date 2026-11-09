@@ -44,14 +44,14 @@ npm install
 npm start
 ```
 
-| Portal | URL | Demo login |
+| Portal | URL | Access |
 |---|---|---|
-| Government console (admin) | http://localhost:3001 | admin@royaltyhub.com / admin123 |
-| Government console (auditor, read-only) | http://localhost:3001 | auditor@royaltyhub.com / auditor123 |
-| Rights-holder portal (artists) | http://localhost:8000 (or :3001/artist) | artist@royaltyhub.com / artist123 · cowriter@royaltyhub.com / artist123 |
-| Licensee portal (music users) | http://localhost:3002 (or :3001/licensee) | radio@royaltyhub.com / licensee123 · venue@royaltyhub.com / licensee123 |
-| Public transparency dashboard | http://localhost:3001/public | no login |
-| Open API documentation | http://localhost:3001/docs | no login |
+| Government console (admin) | http://localhost:3001 | Sign-in required |
+| Government console (auditor, read-only) | http://localhost:3001 | Sign-in required |
+| Rights-holder portal (artists) | http://localhost:8000 (or :3001/artist) | Sign-in required |
+| Licensee portal (music users) | http://localhost:3002 (or :3001/licensee) | Sign-in required |
+| Public transparency dashboard | http://localhost:3001/public | Public |
+| Open API documentation | http://localhost:3001/docs | Public |
 
 The database (`data/royalty_hub.db`) is created with demo data on first start. Start again from fresh data with `npm run reset-db`.
 The app also opens from other devices on the same network (e.g. `http://192.168.1.20:3001` on a phone).
@@ -154,7 +154,7 @@ docs/                     Open API page + technical report (PDF)
 4. **Console** → *Usage & monitoring* → *Simulate airplay* (real matching code on noisy fingerprints).
 5. **Licensee** → *Report usage* → upload a CSV play log; unknown songs go to the public unclaimed list.
 6. **Rights holder** (artist) → *Register a work* with a 70/30 split; money is held until confirmed.
-7. **cowriter@royaltyhub.com** → *Confirm splits*.
+7. **Co-writer** → *Confirm splits*.
 8. **Artist** → *Unclaimed plays* → *This is mine*; admin approves under *Claims & disputes*.
 9. **Console** → *Distributions* → *Calculate draft run* → *Approve run* → *Pay rights holders*.
 10. **Artist** → *Statements*; **console** → *Audit log* → *Verify chain*; log in as the auditor (read-only).
