@@ -1,0 +1,5 @@
+{
+  "version": 2,
+  "builds": [{ "src": "api/index.js", "use": "@vercel/node", "config": { "includeFiles": ["*.html", "*.css", "app.js", "shared/**", "artist/**", "licensee/**", "public/**", "docs/**", "routes/**", "lib/**", "database.js"] } }],
+  "routes": [{ "src": "/(.*)", "dest": "/api/index.js" }]
+}

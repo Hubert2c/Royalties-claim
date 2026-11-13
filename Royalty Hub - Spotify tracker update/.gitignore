@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.docker
+data/*.db
+data/*.db-*
+uploads/*
+!uploads/.gitkeep
+dist/
+
+# Chromaprint tool (download it yourself, see README section 8)
+fpcalc.exe
+chromaprint-fpcalc-*/
+
+# Spotify login tokens of the demo tracker (private)
+.spotify-token.json
+cloudflared.exe

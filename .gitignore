@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.docker
+data/*.db
+data/*.db-*
+uploads/*
+!uploads/.gitkeep
+dist/
+
+Royalty Hub_Walkthrough_video.mov
+cloudflared.exe

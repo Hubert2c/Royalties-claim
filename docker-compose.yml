@@ -1,0 +1,37 @@
+# Royalty Hub with a local PostgreSQL database (optional — Docker is not required).
+services:
+  app:
+    build: .
+    container_name: royalty-hub-app
+    ports:
+      - "3001:3001"
+      - "8000:8000"
+      - "3002:3002"
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/royalty_hub
+      UPLOAD_DIR: /app/uploads
+    depends_on:
+      - postgres
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: royalty-hub-postgres
+    environment:
+      POSTGRES_DB: royalty_hub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

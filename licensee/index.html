@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Royalty Hub | Licensee Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/shared/storage-keys.js"></script>
+    <script src="/shared/icons.js"></script>
+    <script src="/shared/ui.js"></script>
+    <script src="/shared/widgets.js"></script>
+  </head>
+  <body>
+    <!-- ============================ LOGIN / REGISTER ============================ -->
+    <div id="authView" class="auth-shell">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="brand-icon">R</div>
+          <div><p class="eyebrow">Licensee portal</p><h1>Royalty Hub</h1></div>
+        </div>
+        <div class="auth-header">
+          <h2>One licence to use Rwandan and world music legally</h2>
+          <p>For radio and TV stations, event organisers, advertisers, hotels, bars, gyms, transport companies, telecoms and digital services.</p>
+        </div>
+
+        <div class="auth-toggle">
+          <button class="auth-tab active" type="button" data-auth-panel="login">Sign in</button>
+          <button class="auth-tab" type="button" data-auth-panel="register">Register</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <label>Email <input type="email" name="email" placeholder="radio@royaltyhub.com" required /></label>
+          <label>Password <input type="password" name="password" required /></label>
+          <button class="primary-btn full" type="submit">Sign in</button>
+          <div class="demo-box"><p><strong>Demo:</strong> radio@royaltyhub.com / licensee123 · venue@royaltyhub.com / licensee123</p></div>
+        </form>
+
+        <form id="registerForm" class="auth-form hidden">
+          <label>Contact person <input type="text" name="name" required /></label>
+          <label>Email <input type="email" name="email" required /></label>
+          <label>Password (min. 8 characters) <input type="password" name="password" minlength="8" required /></label>
+          <div class="form-grid">
+            <label>Organisation <input type="text" name="organisation" required /></label>
+            <label>Category
+              <select name="category" required>
+                <option value="radio">Radio station</option><option value="tv">TV station</option><option value="event">Event / concert organiser</option>
+                <option value="advertiser">Advertiser / agency</option><option value="venue">Hotel, bar, restaurant, gym, transport</option>
+                <option value="telecom">Telecom</option><option value="digital">Digital / streaming service</option>
+              </select>
+            </label>
+            <label>TIN (RRA) <input type="text" name="tin" /></label>
+            <label>RURA licence no. (broadcasters) <input type="text" name="ruraLicenceNo" /></label>
+          </div>
+          <button class="primary-btn full" type="submit">Create account</button>
+        </form>
+        <p class="auth-footer-links"><a href="/public/">Check a clearance code</a> · <a href="/docs/">Open API docs</a></p>
+      </div>
+    </div>
+
+    <!-- ============================ PORTAL ============================ -->
+    <div id="appView" class="hidden">
+      <div class="app-shell">
+        <div class="nav-backdrop"></div>
+        <aside class="sidebar">
+          <div>
+            <div class="brand-wrap">
+              <div class="brand-icon">R</div>
+              <div><p class="eyebrow">Licensee portal</p><h1>Royalty Hub</h1></div>
+            </div>
+            <nav class="nav" aria-label="Portal navigation">
+              <button class="nav-item active" type="button" data-view="licences"><span class="icon" data-icon="licence"></span>Licences &amp; payments</button>
+              <button class="nav-item" type="button" data-view="report"><span class="icon" data-icon="report"></span>Report usage</button>
+              <button class="nav-item" type="button" data-view="usage"><span class="icon" data-icon="usage"></span>My usage</button>
+              <button class="nav-item" type="button" data-view="keys"><span class="icon" data-icon="keys"></span>API keys</button>
+              <button class="nav-item" type="button" data-view="disputes"><span class="icon" data-icon="disputes"></span>Disputes</button>
+              <button class="nav-item" type="button" data-view="profile"><span class="icon" data-icon="profile"></span>Profile</button>
+            </nav>
+          </div>
+          <div class="profile-card">
+            <div class="avatar" id="userAvatar">L</div>
+            <div><strong id="orgName">Organisation</strong><small id="orgCategory">Licensee</small></div>
+          </div>
+        </aside>
+
+        <main class="main-panel">
+          <header class="topbar">
+            <div class="topbar-title">
+              <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-label="Open menu"><span class="icon" data-icon="menu"></span></button>
+              <div><p class="eyebrow">Licensee</p><h2 id="pageTitle">Licences &amp; payments</h2>
+              </div></div>
+            <div class="topbar-actions">
+              <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme"></button>
+              <div class="bell" id="bellMount"></div>
+              <button class="primary-btn" id="applyBtn" type="button"><span class="icon" data-icon="plus"></span>Apply for a licence</button>
+              <button class="icon-btn" id="logoutBtn" type="button" aria-label="Log out" title="Log out"><span class="icon" data-icon="logout"></span></button>
+            </div>
+          </header>
+
+          <!-- Licences -->
+          <section id="view-licences" class="view-section">
+            <section class="stats-grid">
+              <article class="stat-card green"><span>Licences in force</span><strong id="lcActive">—</strong><small>Paid and valid today</small></article>
+              <article class="stat-card gold"><span>To pay</span><strong id="lcDue">—</strong><small id="lcDueCount">Approved invoices</small></article>
+              <article class="stat-card accent"><span>Paid this year</span><strong id="lcPaid">—</strong><small>All licence fees</small></article>
+              <article class="stat-card red"><span>Songs reported</span><strong id="lcPlays">—</strong><small id="lcMatched">Matched to registered works</small></article>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><div><h3>My licences</h3><p class="muted">After approval you receive an invoice and a clearance code. The code is valid once paid — broadcasters and permit offices check it.</p></div></div>
+              <div id="licencesTable"></div>
+            </section>
+          </section>
+
+          <!-- Report usage -->
+          <section id="view-report" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><div><h3>Upload a report (CSV)</h3><p class="muted">First line must be: <code>played_at,title,artist,isrc,duration_sec</code>. Export it from your playout software or a spreadsheet.</p></div></div>
+              <form id="csvForm" class="inline-form">
+                <label>Report type
+                  <select name="source">
+                    <option value="play_log">Play log (radio / TV)</option><option value="set_list">Set list (concert / event)</option>
+                    <option value="cue_sheet">Cue sheet (advert)</option><option value="ddex">Digital usage report</option>
+                  </select>
+                </label>
+                <label>CSV file <input type="file" name="file" accept=".csv,text/csv" required /></label>
+                <button class="primary-btn" type="submit">Upload</button>
+              </form>
+              <p class="muted small"><button class="table-link" type="button" id="sampleCsvBtn">Download a sample CSV</button></p>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>Or add songs one by one</h3></div>
+              <form id="rowForm">
+                <div class="form-grid">
+                  <label>Report type
+                    <select name="source"><option value="play_log">Play log</option><option value="set_list">Set list</option><option value="cue_sheet">Cue sheet</option></select>
+                  </label>
+                  <label>Played / performed at <input type="datetime-local" name="played_at" required /></label>
+                  <label>Song title <input type="text" name="title" required /></label>
+                  <label>Artist <input type="text" name="artist" /></label>
+                  <label>ISRC (if known) <input type="text" name="isrc" /></label>
+                  <label>Duration (seconds) <input type="number" name="duration_sec" min="1" /></label>
+                </div>
+                <div class="form-actions"><button class="primary-btn" type="submit">Submit</button></div>
+              </form>
+              <div id="reportResult"></div>
+            </section>
+          </section>
+
+          <!-- My usage -->
+          <section id="view-usage" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><h3>Usage reported for my organisation</h3></div>
+              <div id="usageTable"></div>
+            </section>
+          </section>
+
+          <!-- API keys -->
+          <section id="view-keys" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar">
+                <div><h3>API keys</h3><p class="muted">Let your playout or ticketing system report usage automatically through the <a href="/docs/" target="_blank" rel="noopener">Open API</a>.</p></div>
+                <button class="primary-btn" type="button" id="newKeyBtn">+ New key</button>
+              </div>
+              <div id="newKeyBox"></div>
+              <div id="keysTable"></div>
+            </section>
+          </section>
+
+          <!-- Disputes -->
+          <section id="view-disputes" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><h3>Raise a dispute</h3></div>
+              <form id="disputeForm">
+                <div class="form-grid">
+                  <label>About
+                    <select name="subjectType"><option value="licence">A licence / invoice</option><option value="usage">A usage record</option><option value="other">Something else</option></select>
+                  </label>
+                  <label>Reference (optional) <input type="text" name="subjectId" placeholder="e.g. licence ID" /></label>
+                </div>
+                <label>What is wrong? <textarea name="reason" rows="3" required minlength="10"></textarea></label>
+                <div class="form-actions"><button class="primary-btn" type="submit">Submit dispute</button></div>
+              </form>
+            </section>
+            <section class="content-card">
+              <div class="toolbar"><h3>My disputes</h3></div>
+              <div id="disputesTable"></div>
+            </section>
+          </section>
+
+          <!-- Profile -->
+          <section id="view-profile" class="view-section hidden">
+            <section class="content-card">
+              <div class="toolbar"><h3>Organisation profile</h3></div>
+              <div id="profileBox" class="kv"></div>
+              <form id="profileForm">
+                <div class="form-grid">
+                  <label>TIN (RRA) <input type="text" name="tin" /></label>
+                  <label>RURA licence no. <input type="text" name="ruraLicenceNo" /></label>
+                </div>
+                <div class="form-actions"><button class="primary-btn" type="submit">Save</button></div>
+              </form>
+            </section>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- ============================ MODALS ============================ -->
+    <div class="modal hidden" id="applyModal">
+      <div class="modal-dialog">
+        <div class="modal-header"><h3>Apply for a licence</h3><button class="close-btn" type="button" data-close="applyModal">×</button></div>
+        <form id="applyForm">
+          <label>Tariff <select name="tariffId" id="tariffSelect" required></select></label>
+          <p class="muted small" id="tariffHint"></p>
+          <div class="form-grid">
+            <label>Start date <input type="date" name="periodStart" required /></label>
+            <label>End date <input type="date" name="periodEnd" required /></label>
+            <label class="field-quantity hidden">Number of adverts / events <input type="number" name="quantity" min="1" step="1" /></label>
+            <label class="field-gross hidden">Declared gross receipts (Rwf) <input type="number" name="grossAmount" min="1" /></label>
+          </div>
+          <label>Description (event name, advert, premises…) <input type="text" name="description" /></label>
+          <div class="form-actions"><button type="button" class="secondary-btn" data-close="applyModal">Cancel</button><button type="submit" class="primary-btn">Submit application</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="payModal">
+      <div class="modal-dialog">
+        <div class="modal-header"><h3>Pay licence fee</h3><button class="close-btn" type="button" data-close="payModal">×</button></div>
+        <form id="payForm">
+          <input type="hidden" name="licenceId" />
+          <p id="payAmount" class="pay-amount"></p>
+          <div class="notice">Prototype: this payment is <strong>simulated</strong>. No money is taken.</div>
+          <label>Pay with
+            <select name="channel"><option value="momo">Mobile money</option><option value="bank">Bank transfer</option><option value="irembo">Irembo</option></select>
+          </label>
+          <label>Paying mobile money number <input type="text" name="payer" placeholder="0788123456" /></label>
+          <div class="form-actions"><button type="button" class="secondary-btn" data-close="payModal">Cancel</button><button type="submit" class="primary-btn">Pay now</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <script src="/licensee/app.js"></script>
+  </body>
+</html>

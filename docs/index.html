@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Royalty Hub | Open API v1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/shared/icons.js"></script>
+    <script src="/shared/ui.js"></script>
+    <script src="/shared/widgets.js"></script>
+  </head>
+  <body>
+    <div class="public-shell docs">
+      <div class="public-band" aria-hidden="true"></div>
+      <header class="public-header">
+        <div class="brand-wrap">
+          <div class="brand-icon">R</div>
+          <div><p class="eyebrow">Open API · version 1</p><h1>Royalty Hub</h1></div>
+        </div>
+        <nav class="public-links"><a href="/">Console</a><a href="/artist/">Artists</a><a href="/licensee/">Music users</a><a href="/public/">Public dashboard</a><button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme"></button></nav>
+      </header>
+
+      <section class="content-card">
+        <h3>Why an open API?</h3>
+        <p>Following the network-centric model of India's Open Network for Digital Commerce (ONDC), the Government owns the registry, the tariff rules and the audit trail, and publishes standard APIs so that other systems can plug in: broadcast playout software, radio-monitoring services, ticketing apps, telecoms and streaming services. They report usage in one standard format instead of each building a separate deal.</p>
+        <h3>Authentication</h3>
+        <p>Send an API key in the <code>X-API-Key</code> header.</p>
+        <ul>
+          <li><strong>Licensee keys</strong> — created by a licensee in the Licensee portal (API keys). Reports are recorded for that licensee.</li>
+          <li><strong>Monitor keys</strong> — issued by the Government in the console (Settings &amp; API keys) to a broadcast-monitoring service. Each report must include <code>station_id</code> (the station's licensee ID).</li>
+        </ul>
+        <p>Base URL: <code>http://localhost:3001/api/open/v1</code> (local prototype).</p>
+      </section>
+
+      <section class="content-card">
+        <h3>POST /usage — report plays, set lists, cue sheets</h3>
+        <pre class="code-box">curl -X POST http://localhost:3001/api/open/v1/usage \
+  -H "X-API-Key: rh_live_..." -H "Content-Type: application/json" \
+  -d '{
+    "source": "play_log",
+    "events": [
+      { "played_at": "2026-10-24T08:15:00Z", "title": "Midnight Echo",
+        "artist": "Munezero Hubert", "isrc": "RWA012600001", "duration_sec": 210 }
+    ]
+  }'</pre>
+        <p><code>source</code>: <code>play_log</code>, <code>set_list</code>, <code>cue_sheet</code> or <code>ddex</code>. Up to 5,000 events per request. Each event is matched by ISRC, then by title + artist. Unmatched events go to the public unclaimed list.</p>
+        <p>Response: <code>{ saved, matched, unmatched, errors, events: [{ id, matched, recording_id, title }] }</code></p>
+      </section>
+
+      <section class="content-card">
+        <h3>POST /fingerprint-matches — report airplay by audio fingerprint</h3>
+        <p>A monitor records a few seconds of a station's stream, runs the open-source Chromaprint tool <code>fpcalc -raw clip.wav</code>, and sends the numbers after <code>FINGERPRINT=</code>. The platform compares them with every registered recording (bit error rate) and records a play if at least 65% of bits agree. Register each song with <code>fpcalc -raw -length 600 song.mp3</code> so the whole song is fingerprinted, not just the first two minutes.</p>
+        <pre class="code-box">curl -X POST http://localhost:3001/api/open/v1/fingerprint-matches \
+  -H "X-API-Key: rh_live_..." -H "Content-Type: application/json" \
+  -d '{ "station_id": "LIC-RADIO", "played_at": "2026-10-24T08:15:00Z",
+        "duration_sec": 210, "fingerprint": "123456789,987654321,..." }'</pre>
+        <p>Response: <code>{ usage_id, matched, recording_id, title, confidence }</code></p>
+        <p>A ready-made helper script is included: <code>node tools/monitor-report.js clip.wav LIC-RADIO</code> (needs <code>fpcalc</code> installed and the <code>ROYALTY_HUB_API_KEY</code> environment variable).</p>
+      </section>
+
+      <section class="content-card">
+        <h3>GET /catalogue — registered recordings</h3>
+        <pre class="code-box">curl http://localhost:3001/api/open/v1/catalogue -H "X-API-Key: rh_live_..."</pre>
+        <p>Returns <code>{ recordings: [{ id, title, performer, isrc, duration_sec, iswc }] }</code> so client systems can attach ISRCs before reporting.</p>
+      </section>
+
+      <section class="content-card">
+        <h3>Public endpoints (no key)</h3>
+        <ul>
+          <li><code>GET /api/public/summary</code> — collections, distributions, admin fees, held money, approved runs</li>
+          <li><code>GET /api/public/unclaimed</code> — unmatched plays</li>
+          <li><code>GET /api/public/clearance/{code}</code> — is a clearance code valid?</li>
+        </ul>
+        <p>Every API call that changes data is written to the tamper-evident audit log.</p>
+      </section>
+    </div>
+  </body>
+</html>
